@@ -37,6 +37,7 @@ vendor/
 # Temporary files
 *.tmp
 *.temp
+*.env
 
 # Go build directories
 bin/

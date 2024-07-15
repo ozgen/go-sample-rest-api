@@ -17,6 +17,12 @@ type contextKey string
 
 const UserKey contextKey = "userID"
 
+type jwtValidatorFunc func(string) (*jwt.Token, error)
+
+var validateJWT jwtValidatorFunc = func(tokenString string) (*jwt.Token, error) {
+	return validateJWTDefault(tokenString)
+}
+
 func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := utils.GetTokenFromRequest(r)
@@ -77,7 +83,7 @@ func CreateJWT(secret []byte, userID int) (string, error) {
 	return tokenString, err
 }
 
-func validateJWT(tokenString string) (*jwt.Token, error) {
+func validateJWTDefault(tokenString string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

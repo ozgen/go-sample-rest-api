@@ -15,10 +15,11 @@ import (
 
 type Handler struct {
 	store types.UserStore
+	auth  auth2.Authenticator
 }
 
-func NewHandler(store types.UserStore) *Handler {
-	return &Handler{store: store}
+func NewHandler(store types.UserStore, auth auth2.Authenticator) *Handler {
+	return &Handler{store: store, auth: auth}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
@@ -43,18 +44,18 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	u, err := h.store.GetUserByEmail(user.Email)
-	if err != nil {
+	if err != nil || u == nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
 		return
 	}
 
-	if !auth2.ComparePasswords(u.Password, []byte(user.Password)) {
+	if !h.auth.ComparePasswords(u.Password, []byte(user.Password)) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid email or password"))
 		return
 	}
 
 	secret := []byte(config.Envs.JWTSecret)
-	token, err := auth2.CreateJWT(secret, u.ID)
+	token, err := h.auth.CreateJWT(secret, u.ID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -84,7 +85,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hash password
-	hashedPassword, err := auth2.HashPassword(user.Password)
+	hashedPassword, err := h.auth.HashPassword(user.Password)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return

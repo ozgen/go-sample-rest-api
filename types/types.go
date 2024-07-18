@@ -28,3 +28,12 @@ type UserStore interface {
 	GetUserByID(id int) (*User, error)
 	CreateUser(User) error
 }
+
+type Auth interface {
+	ComparePasswords(storedPassword string, suppliedPassword []byte) bool
+	CreateJWT(secret []byte, userID int) (string, error)
+}
+
+type Handler struct {
+	store UserStore
+}

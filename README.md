@@ -46,17 +46,22 @@ This project uses several third-party libraries to handle various functionalitie
 
 ### SQL Mocking for Testing
 - **[go-sqlmock](https://github.com/DATA-DOG/go-sqlmock)**
-  `go-sqlmock` is a mock library for SQL database operations that allows you to test your application's data access logic without needing to interact with a real database, thus speeding up tests and avoiding side effects.
+ This is a mock library for SQL database operations that allows you to test your application's data access logic without needing to interact with a real database, thus speeding up tests and avoiding side effects.
 
 ### Testify
 - **[Testify](https://github.com/stretchr/testify)** 
-`Testify` is a toolkit with common assertions and mocks that are used in testing Go code. It provides a friendly and comprehensive set of tools that enhance the Go testing experience.
 
+This is a toolkit with common assertions and mocks that are used in testing Go code. It provides a friendly and comprehensive set of tools that enhance the Go testing experience.
+
+### UUID
+- **[UUID](https://github.com/google/uuid)** 
+
+This library is used in our project to generate universally unique identifiers (UUIDs). UUIDs are essential for creating unique keys in our database and ensuring that our data can be uniquely identified across distributed systems.
 ### Installation of Dependencies
 To install these Go dependencies, run the following command:
 
 ```bash
-go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5 github.com/DATA-DOG/go-sqlmock github.com/stretchr/testify
+go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5 github.com/DATA-DOG/go-sqlmock github.com/stretchr/testify github.com/google/uuid
 
 ```
 ### Installation of golang-migrate

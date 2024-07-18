@@ -13,3 +13,12 @@ type CameraMetadata struct {
 	OnboardedAt         time.Time `json:"onboarded_at"`
 	InitializedAt       time.Time `json:"initialized_at"`
 }
+
+type CameraMetadataPayload struct {
+	CameraName      string `json:"camera_name" validate:"required"`
+	FirmwareVersion string `json:"firmware_version" validate:"required"`
+}
+
+type CameraMetadataStore interface {
+	CreateCameraMetaData(camera CameraMetadata) (*CameraMetadata, error)
+}

@@ -40,15 +40,23 @@ This project uses several third-party libraries to handle various functionalitie
   Version: v5  
   Go JWT is a Go library that provides tools for creating and verifying JSON Web Tokens, which are an open standard used for securely transmitting information between parties as a JSON object.
 
-## Database Migration Tool
+### Database Migration Tool
 - **[golang-migrate](https://github.com/golang-migrate/migrate)**  
   This tool handles database migrations. It is essential for managing database schema changes and is used to apply and revert database migrations.
 
+### SQL Mocking for Testing
+- **[go-sqlmock](https://github.com/DATA-DOG/go-sqlmock)**
+  `go-sqlmock` is a mock library for SQL database operations that allows you to test your application's data access logic without needing to interact with a real database, thus speeding up tests and avoiding side effects.
+
+### Testify
+- **[Testify](https://github.com/stretchr/testify)** 
+`Testify` is a toolkit with common assertions and mocks that are used in testing Go code. It provides a friendly and comprehensive set of tools that enhance the Go testing experience.
+
 ### Installation of Dependencies
-To install the Go dependencies, run the following command:
+To install these Go dependencies, run the following command:
 
 ```bash
-go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5
+go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5 github.com/DATA-DOG/go-sqlmock github.com/stretchr/testify
 
 ```
 ### Installation of golang-migrate

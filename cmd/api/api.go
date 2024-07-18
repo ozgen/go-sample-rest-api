@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	auth2 "go-sample-rest-api/service/auth"
 	"go-sample-rest-api/service/user"
 	"log"
 	"net/http"
@@ -26,7 +27,8 @@ func (s *APIServer) Run() error {
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
 	userStore := user.NewStore(s.db)
-	userService := user.NewHandler(userStore)
+	auth := auth2.NewAuthenticator()
+	userService := user.NewHandler(userStore, auth)
 	userService.RegisterRoutes(subrouter)
 
 	// Serve static files

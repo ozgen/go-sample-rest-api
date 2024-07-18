@@ -19,7 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
-	defer db.Close() // Ensure the database connection is closed when main finishes
+	defer db.Close()
 
 	// Check the database connection
 	err = db.Ping()
@@ -35,7 +35,7 @@ func main() {
 
 	// Create a new migrate instance
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://cmd/migrate/migrations", // Ensure the path is correct
+		"file://cmd/migrate/migrations",
 		"postgres",
 		driver,
 	)

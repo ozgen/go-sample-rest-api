@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"go-sample-rest-api/types"
+	"log"
 )
 
 type Store struct {
@@ -17,9 +18,11 @@ func NewStore(db *sql.DB) *Store {
 func (s *Store) CreateUser(user types.User) error {
 	_, err := s.db.Exec("INSERT INTO users (firstName, lastName, email, password) VALUES ($1, $2, $3, $4)", user.FirstName, user.LastName, user.Email, user.Password)
 	if err != nil {
+		log.Printf("Failed to create user: %v", err)
 		return err
 	}
 
+	log.Printf("User created successfully: %s", user.Email)
 	return nil
 }
 

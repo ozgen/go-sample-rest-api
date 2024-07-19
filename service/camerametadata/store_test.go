@@ -22,7 +22,7 @@ func setupMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock, func()) {
 	return db, mock, cleanup
 }
 
-func TestCreateCameraMetaData(t *testing.T) {
+func TestStore_CreateCameraMetaDataCreateCameraMetaData(t *testing.T) {
 	t.Run("CreateCameraMetaData_withValidData_toCreateCameraMetadata", func(t *testing.T) {
 		// arrange
 		db, mock, cleanup := setupMockDB(t)

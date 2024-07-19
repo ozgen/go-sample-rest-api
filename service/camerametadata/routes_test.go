@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func TestCameraMetadataService(t *testing.T) {
+func TestCameraMetadataService_CreateCameraMetaData(t *testing.T) {
 
 	t.Run("CreateCameraMetaData_withValidData_returnCreated", func(t *testing.T) {
 		//arrange
@@ -69,7 +69,7 @@ func TestCameraMetadataService(t *testing.T) {
 
 		mockCameraStore.AssertExpectations(t)
 	})
-	t.Run("CreateCameraMetaData_withVInvalid_returnBadRequest", func(t *testing.T) {
+	t.Run("CreateCameraMetaData_withMalformedData_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
 		handler := NewHandler(mockCameraStore)

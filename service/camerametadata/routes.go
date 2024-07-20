@@ -24,6 +24,7 @@ func NewHandler(store types.CameraMetadataStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/camera_metadata", h.CreateCameraMetadata).Methods(http.MethodPost)
 	router.HandleFunc("/camera_metadata/{camID}/init", h.InitializeCameraMetaData).Methods(http.MethodPatch)
+	router.HandleFunc("/camera_metadata/{camID}", h.GetCameraMetaData).Methods(http.MethodGet)
 }
 
 func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http.Request) {
@@ -95,4 +96,23 @@ func (h *Handler) InitializeCameraMetaData(writer http.ResponseWriter, request *
 	}
 
 	utils.WriteJSON(writer, http.StatusOK, nil)
+}
+
+func (h *Handler) GetCameraMetaData(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	camID := vars["camID"]
+
+	_, err := uuid.Parse(camID)
+	if err != nil {
+		utils.WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid camID: %v", err))
+		return
+	}
+
+	cameraMetadata, err := h.store.GetCameraMetadataByID(camID)
+	if err != nil {
+		utils.WriteError(writer, http.StatusNotFound, fmt.Errorf("camera given ID: %v not found", camID))
+		return
+	}
+
+	utils.WriteJSON(writer, http.StatusOK, cameraMetadata)
 }

@@ -107,11 +107,6 @@ The project includes a Makefile for simplifying common tasks:
   ```
 
 
-### Adding Debug Instructions to the README
-
-After the existing sections, you can add a new section that explains how to start the application in debug mode. This will guide users on how to use the newly added Makefile target `debug`.
-
-```markdown
 ## Debugging the Application
 
 ### Setting Up for Debugging

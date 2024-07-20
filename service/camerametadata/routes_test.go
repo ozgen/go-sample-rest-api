@@ -455,7 +455,6 @@ func TestHandler_GetCameraMetaData(t *testing.T) {
 		if rr.Code != http.StatusBadRequest {
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
-
 	})
 }
 

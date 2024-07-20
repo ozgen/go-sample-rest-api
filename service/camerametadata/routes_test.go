@@ -15,8 +15,7 @@ import (
 	"time"
 )
 
-func TestCameraMetadataService_CreateCameraMetadata(t *testing.T) {
-
+func TestHandler_CreateCameraMetadata(t *testing.T) {
 	t.Run("CreateCameraMetadata_withValidData_returnCreated", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -74,6 +73,7 @@ func TestCameraMetadataService_CreateCameraMetadata(t *testing.T) {
 
 		mockCameraStore.AssertExpectations(t)
 	})
+
 	t.Run("CreateCameraMetadata_withMalformedData_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -95,6 +95,7 @@ func TestCameraMetadataService_CreateCameraMetadata(t *testing.T) {
 			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 		}
 	})
+
 	t.Run("CreateCameraMetadata_withInvalidJsonData_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -123,6 +124,7 @@ func TestCameraMetadataService_CreateCameraMetadata(t *testing.T) {
 			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 		}
 	})
+
 	t.Run("CreateCameraMetadata_withDBError_returnInternalError", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -160,7 +162,7 @@ func TestCameraMetadataService_CreateCameraMetadata(t *testing.T) {
 	})
 }
 
-func TestCameraMetadataService_InitializeCameraMetaData(t *testing.T) {
+func TestHandler_InitializeCameraMetaData(t *testing.T) {
 	t.Run("InitializeCameraMetaData_withValidData_returnOk", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -209,6 +211,7 @@ func TestCameraMetadataService_InitializeCameraMetaData(t *testing.T) {
 
 		mockCameraStore.AssertExpectations(t)
 	})
+
 	t.Run("InitializeCameraMetaData_withAlreadyInitializedData_returnConflict", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -248,6 +251,7 @@ func TestCameraMetadataService_InitializeCameraMetaData(t *testing.T) {
 
 		mockCameraStore.AssertExpectations(t)
 	})
+
 	t.Run("InitializeCameraMetaData_withErrOnUpdate_returnInternalError", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -286,6 +290,7 @@ func TestCameraMetadataService_InitializeCameraMetaData(t *testing.T) {
 
 		mockCameraStore.AssertExpectations(t)
 	})
+
 	t.Run("InitializeCameraMetaData_withWrongCamID_returnNotFound", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -312,6 +317,7 @@ func TestCameraMetadataService_InitializeCameraMetaData(t *testing.T) {
 
 		mockCameraStore.AssertExpectations(t)
 	})
+
 	t.Run("InitializeCameraMetaData_withInvalidCamID_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -335,6 +341,7 @@ func TestCameraMetadataService_InitializeCameraMetaData(t *testing.T) {
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
 	})
+
 	t.Run("InitializeCameraMetaData_withEmptyCamID_returnStatusMovedPermanently", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
@@ -354,6 +361,99 @@ func TestCameraMetadataService_InitializeCameraMetaData(t *testing.T) {
 		// Assert
 		if rr.Code != http.StatusMovedPermanently {
 			t.Errorf("expected status code %d, got %d", http.StatusMovedPermanently, rr.Code)
+		}
+	})
+}
+
+func TestHandler_GetCameraMetaData(t *testing.T) {
+	t.Run("GetCameraMetaData_withValidData_returnOk", func(t *testing.T) {
+		//arrange
+		mockCameraStore := new(mockCameraStore)
+		handler := NewHandler(mockCameraStore)
+
+		timeNow := time.Now()
+		nullTime := sql.NullTime{
+			Time:  timeNow,
+			Valid: true,
+		}
+		camID := uuid.New().String()
+		expectedCamera := types.CameraMetadata{
+			CamID:           camID,
+			CameraName:      "camera-name",
+			FirmwareVersion: "v123",
+			CreatedAt:       nullTime,
+		}
+
+		mockCameraStore.On("GetCameraMetadataByID", camID).Return(&expectedCamera, nil)
+
+		// Act
+		req, err := http.NewRequest(http.MethodGet, "/camera_metadata/"+camID, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		rr := httptest.NewRecorder()
+		router := mux.NewRouter()
+		router.HandleFunc("/camera_metadata/{camID}", handler.GetCameraMetaData).Methods(http.MethodGet)
+		router.ServeHTTP(rr, req)
+
+		// Assert
+		if rr.Code != http.StatusOK {
+			t.Errorf("expected status code %d, got %d", http.StatusOK, rr.Code)
+		}
+
+		mockCameraStore.AssertExpectations(t)
+	})
+
+	t.Run("GetCameraMetaData_withCamId_returnNotFound", func(t *testing.T) {
+		//arrange
+		mockCameraStore := new(mockCameraStore)
+		handler := NewHandler(mockCameraStore)
+
+		camID := uuid.New().String()
+
+		mockCameraStore.On("GetCameraMetadataByID", camID).Return(nil, fmt.Errorf("Not Found"))
+
+		// Act
+		req, err := http.NewRequest(http.MethodGet, "/camera_metadata/"+camID, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		rr := httptest.NewRecorder()
+		router := mux.NewRouter()
+		router.HandleFunc("/camera_metadata/{camID}", handler.GetCameraMetaData).Methods(http.MethodGet)
+		router.ServeHTTP(rr, req)
+
+		// Assert
+		if rr.Code != http.StatusNotFound {
+			t.Errorf("expected status code %d, got %d", http.StatusNotFound, rr.Code)
+		}
+
+		mockCameraStore.AssertExpectations(t)
+	})
+
+	t.Run("GetCameraMetaData_withMalformedCamId_returnBadRequest", func(t *testing.T) {
+		//arrange
+		mockCameraStore := new(mockCameraStore)
+		handler := NewHandler(mockCameraStore)
+
+		camID := "123"
+
+		// Act
+		req, err := http.NewRequest(http.MethodGet, "/camera_metadata/"+camID, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		rr := httptest.NewRecorder()
+		router := mux.NewRouter()
+		router.HandleFunc("/camera_metadata/{camID}", handler.GetCameraMetaData).Methods(http.MethodGet)
+		router.ServeHTTP(rr, req)
+
+		// Assert
+		if rr.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
 	})
 }

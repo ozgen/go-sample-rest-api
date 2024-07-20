@@ -6,7 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"go-sample-rest-api/customErrors"
+	"go-sample-rest-api/customerrors"
 	"go-sample-rest-api/types"
 	"go-sample-rest-api/utils"
 	"log"
@@ -74,12 +74,12 @@ func (h *Handler) InitializeCameraMetaData(writer http.ResponseWriter, request *
 
 	cameraMetadata, err := h.store.GetCameraMetadataByID(camID)
 	if err != nil {
-		utils.WriteError(writer, http.StatusNotFound, &customErrors.NotFoundError{ID: camID})
+		utils.WriteError(writer, http.StatusNotFound, &customerrors.NotFoundError{ID: camID})
 		return
 	}
 
 	if cameraMetadata.InitializedAt.Valid {
-		utils.WriteError(writer, http.StatusConflict, &customErrors.AlreadyInitError{ID: camID})
+		utils.WriteError(writer, http.StatusConflict, &customerrors.AlreadyInitError{ID: camID})
 		return
 	}
 

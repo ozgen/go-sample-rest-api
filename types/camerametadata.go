@@ -1,17 +1,19 @@
 package types
 
-import "time"
+import (
+	"database/sql"
+)
 
 type CameraMetadata struct {
-	CamID               string    `json:"cam_id"`
-	ImageId             string    `json:"image_id"`
-	CameraName          string    `json:"camera_name"`
-	FirmwareVersion     string    `json:"firmware_version"`
-	ContainerName       string    `json:"container_name"`
-	NameOfStoredPicture string    `json:"name_of_stored_picture"`
-	CreatedAt           time.Time `json:"createdAt"`
-	OnboardedAt         time.Time `json:"onboarded_at"`
-	InitializedAt       time.Time `json:"initialized_at"`
+	CamID               string         `json:"cam_id"`
+	ImageId             sql.NullString `json:"image_id"`
+	CameraName          string         `json:"camera_name"`
+	FirmwareVersion     string         `json:"firmware_version"`
+	ContainerName       sql.NullString `json:"container_name"`
+	NameOfStoredPicture sql.NullString `json:"name_of_stored_picture"`
+	CreatedAt           sql.NullTime   `json:"createdAt"`
+	OnboardedAt         sql.NullTime   `json:"onboarded_at"`
+	InitializedAt       sql.NullTime   `json:"initialized_at"`
 }
 
 type CameraMetadataPayload struct {
@@ -19,6 +21,13 @@ type CameraMetadataPayload struct {
 	FirmwareVersion string `json:"firmware_version" validate:"required"`
 }
 
+type CameraMetadataResponse struct {
+	CameraName      string `json:"camera_name"`
+	FirmwareVersion string `json:"firmware_version"`
+}
+
 type CameraMetadataStore interface {
-	CreateCameraMetaData(camera CameraMetadata) (*CameraMetadata, error)
+	CreateCameraMetadata(camera CameraMetadata) (*CameraMetadata, error)
+	GetCameraMetadataByID(camID string) (*CameraMetadata, error)
+	UpdateCameraMetadata(camera CameraMetadata) (*CameraMetadata, error)
 }

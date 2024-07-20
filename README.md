@@ -106,3 +106,53 @@ The project includes a Makefile for simplifying common tasks:
   make migrate-down
   ```
 
+
+### Adding Debug Instructions to the README
+
+After the existing sections, you can add a new section that explains how to start the application in debug mode. This will guide users on how to use the newly added Makefile target `debug`.
+
+```markdown
+## Debugging the Application
+
+### Setting Up for Debugging
+To debug the application, you need to have Delve Debugger installed. Delve provides a more sophisticated debugging experience for Go applications than traditional print statement debugging.
+
+- **Install Delve:**
+  If Delve is not already installed on your machine, you can install it using the following command:
+
+  ```bash
+  go install github.com/go-delve/delve/cmd/dlv@latest
+  ```
+
+### Start Debugging
+Once Delve is installed, you can start the application in debug mode using the following Makefile command. This command sets up the application to run in headless mode, allowing you to connect with an IDE or a remote debugger interface.
+
+- **Debug the Application**
+  To start the application in debug mode, run:
+
+  ```bash
+  make debug
+  ```
+
+This command starts the application with Delve in headless mode, listening for debugger connections on port `2345`. You can attach to this session using your preferred IDE configured for remote debugging.
+
+### Connecting with IntelliJ IDEA
+If you are using IntelliJ IDEA or similar IDEs for Go development, follow these steps to connect to the debug session:
+
+1. **Open Run/Debug Configurations:**
+  - Navigate to 'Run' -> 'Edit Configurations...'
+  - Add a new 'Go Remote' configuration.
+2. **Configure the Debugger:**
+  - Set the host to `localhost` and the port to `2345`.
+3. **Start Debugging:**
+  - Select the created debug configuration and click on the debug icon to start debugging.
+
+Ensure that your firewall settings allow traffic on the port if debugging remotely.
+
+### Tips for Effective Debugging
+- **Breakpoints:** Set breakpoints in your code where you want the execution to pause.
+- **Evaluate Expressions:** Use the debugger to evaluate expressions and inspect the state of your application.
+- **Step Execution:** Utilize step over, step into, and step out functionalities to navigate through your code.
+
+This setup provides a comprehensive debugging environment that aids in developing robust applications by allowing developers to find and fix issues efficiently.
+```

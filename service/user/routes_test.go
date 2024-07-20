@@ -146,7 +146,7 @@ func TestUserService(t *testing.T) {
 		}
 	})
 
-	t.Run("validation errors on payload", func(t *testing.T) {
+	t.Run("validation customErrors on payload", func(t *testing.T) {
 		// arrange
 		mockUserStore := new(mockUserStore)
 		mockAuth := new(MockAuthenticator)

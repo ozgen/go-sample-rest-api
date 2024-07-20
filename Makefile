@@ -7,6 +7,10 @@ test:
 run: build
 	@./bin/app
 
+debug:
+	@dlv debug --headless --listen=:2345 --log --api-version=2 ./cmd/main.go
+
+
 migration:
 	@migrate create -ext sql -dir cmd/migrate/migrations $(filter-out $@,$(MAKECMDGOALS))
 

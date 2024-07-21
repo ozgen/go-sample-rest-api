@@ -67,7 +67,13 @@ func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http
 		}).Error("Failed to create camera metadata")
 		return
 	}
-	utils.WriteJSON(writer, http.StatusCreated, savedCamera)
+	cameraResponse := types.CameraMetadataResponse{
+		CamID:           savedCamera.CamID,
+		CameraName:      savedCamera.CameraName,
+		FirmwareVersion: savedCamera.FirmwareVersion,
+		CreatedAt:       savedCamera.CreatedAt,
+	}
+	utils.WriteJSON(writer, http.StatusCreated, cameraResponse)
 }
 
 func (h *Handler) InitializeCameraMetaData(writer http.ResponseWriter, request *http.Request) {
@@ -123,5 +129,12 @@ func (h *Handler) GetCameraMetaData(writer http.ResponseWriter, request *http.Re
 		return
 	}
 
-	utils.WriteJSON(writer, http.StatusOK, cameraMetadata)
+	cameraResponse := types.CameraMetadataResponse{
+		CamID:           cameraMetadata.CamID,
+		CameraName:      cameraMetadata.CameraName,
+		FirmwareVersion: cameraMetadata.FirmwareVersion,
+		CreatedAt:       cameraMetadata.CreatedAt,
+	}
+
+	utils.WriteJSON(writer, http.StatusOK, cameraResponse)
 }

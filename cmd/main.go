@@ -5,6 +5,7 @@ import (
 	"go-sample-rest-api/config"
 	"go-sample-rest-api/db"
 	"go-sample-rest-api/logging"
+	"go-sample-rest-api/storage"
 )
 
 func main() {
@@ -15,8 +16,9 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+	azStorage := storage.NewAzureStorage(cfg.AzureStorageAccountName, cfg.AzureContainerAccessKey, cfg.AzureContainerName)
 	serverAddress := ":" + cfg.ServerPort
-	server := api.NewAPIServer(serverAddress, db)
+	server := api.NewAPIServer(serverAddress, db, azStorage)
 
 	if err := server.Run(); err != nil {
 		log.Fatal(err)

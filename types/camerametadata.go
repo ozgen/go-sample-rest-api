@@ -27,6 +27,12 @@ type CameraMetadataResponse struct {
 	FirmwareVersion string       `json:"firmware_version"`
 	CreatedAt       sql.NullTime `json:"createdAt"`
 }
+type ImageUploadedResponse struct {
+	CamID           string         `json:"cam_id"`
+	CameraName      string         `json:"camera_name"`
+	FirmwareVersion string         `json:"firmware_version"`
+	ImageId         sql.NullString `json:"image_id"`
+}
 
 type CameraMetadataStore interface {
 	CreateCameraMetadata(camera CameraMetadata) (*CameraMetadata, error)

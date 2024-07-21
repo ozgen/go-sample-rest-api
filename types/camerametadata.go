@@ -22,8 +22,10 @@ type CameraMetadataPayload struct {
 }
 
 type CameraMetadataResponse struct {
-	CameraName      string `json:"camera_name"`
-	FirmwareVersion string `json:"firmware_version"`
+	CamID           string       `json:"cam_id"`
+	CameraName      string       `json:"camera_name"`
+	FirmwareVersion string       `json:"firmware_version"`
+	CreatedAt       sql.NullTime `json:"createdAt"`
 }
 
 type CameraMetadataStore interface {

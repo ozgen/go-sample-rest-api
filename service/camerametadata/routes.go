@@ -6,10 +6,11 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 	"go-sample-rest-api/customerrors"
+	"go-sample-rest-api/logging"
 	"go-sample-rest-api/types"
 	"go-sample-rest-api/utils"
-	"log"
 	"net/http"
 	"time"
 )
@@ -30,16 +31,22 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http.Request) {
 	var cameraMetadata types.CameraMetadataPayload
+	log := logging.GetLogger()
 	if err := utils.ParseJSON(request, &cameraMetadata); err != nil {
 		utils.WriteError(writer, http.StatusBadRequest, err)
-		log.Printf("Malformed cameraMetadata request: %v", request.Body)
+		log.WithFields(logrus.Fields{
+			"error": err,
+			"body":  request.Body,
+		}).Error("Malformed cameraMetadata request")
 		return
 	}
 
 	if err := utils.Validate.Struct(cameraMetadata); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
-		log.Printf("Malformed cameraMetadata request: %v", errors)
+		log.WithFields(logrus.Fields{
+			"validationErrors": errors,
+		}).Error("Validation failed for cameraMetadata request")
 		return
 	}
 	timeNow := time.Now()
@@ -55,10 +62,11 @@ func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http
 
 	if err != nil {
 		utils.WriteError(writer, http.StatusInternalServerError, err)
-		log.Printf("Malformed cameraMetadata request: %v", err)
+		log.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Failed to create camera metadata")
 		return
 	}
-
 	utils.WriteJSON(writer, http.StatusCreated, savedCamera)
 }
 

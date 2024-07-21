@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func GetEnv(key, defaultValue string) string {
@@ -62,4 +63,10 @@ func GetTokenFromRequest(r *http.Request) string {
 	}
 
 	return ""
+}
+
+func NormalizeBase64(base64str string) string {
+	base64str = strings.ReplaceAll(base64str, `\/`, `/`)
+	base64str = strings.ReplaceAll(base64str, ` `, `+`)
+	return base64str
 }

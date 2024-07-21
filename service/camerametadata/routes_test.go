@@ -2,6 +2,7 @@ package camerametadata
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -19,7 +20,8 @@ func TestHandler_CreateCameraMetadata(t *testing.T) {
 	t.Run("CreateCameraMetadata_withValidData_returnCreated", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		payload := types.CameraMetadataPayload{
 			CameraName:      "camera-name",
@@ -77,8 +79,8 @@ func TestHandler_CreateCameraMetadata(t *testing.T) {
 	t.Run("CreateCameraMetadata_withMalformedData_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
-
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 		// Act
 		req, err := http.NewRequest(http.MethodPost, "/camera_metadata", bytes.NewBufferString("{invalid json"))
 		if err != nil {
@@ -99,7 +101,8 @@ func TestHandler_CreateCameraMetadata(t *testing.T) {
 	t.Run("CreateCameraMetadata_withInvalidJsonData_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		payload := types.CameraMetadataPayload{
 			CameraName:      "",
@@ -128,7 +131,8 @@ func TestHandler_CreateCameraMetadata(t *testing.T) {
 	t.Run("CreateCameraMetadata_withDBError_returnInternalError", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		payload := types.CameraMetadataPayload{
 			CameraName:      "camera-name",
@@ -166,7 +170,8 @@ func TestHandler_InitializeCameraMetaData(t *testing.T) {
 	t.Run("InitializeCameraMetaData_withValidData_returnOk", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		timeNow := time.Now()
 		nullTime := sql.NullTime{
@@ -215,7 +220,8 @@ func TestHandler_InitializeCameraMetaData(t *testing.T) {
 	t.Run("InitializeCameraMetaData_withAlreadyInitializedData_returnConflict", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		timeNow := time.Now()
 		nullTime := sql.NullTime{
@@ -255,7 +261,8 @@ func TestHandler_InitializeCameraMetaData(t *testing.T) {
 	t.Run("InitializeCameraMetaData_withErrOnUpdate_returnInternalError", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		timeNow := time.Now()
 		nullTime := sql.NullTime{
@@ -294,7 +301,8 @@ func TestHandler_InitializeCameraMetaData(t *testing.T) {
 	t.Run("InitializeCameraMetaData_withWrongCamID_returnNotFound", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		camID := uuid.New().String()
 
@@ -321,7 +329,8 @@ func TestHandler_InitializeCameraMetaData(t *testing.T) {
 	t.Run("InitializeCameraMetaData_withInvalidCamID_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		camID := "123"
 
@@ -345,7 +354,8 @@ func TestHandler_InitializeCameraMetaData(t *testing.T) {
 	t.Run("InitializeCameraMetaData_withEmptyCamID_returnStatusMovedPermanently", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		// Act
 		req, err := http.NewRequest(http.MethodPatch, "/camera_metadata//init", nil)
@@ -369,7 +379,8 @@ func TestHandler_GetCameraMetaData(t *testing.T) {
 	t.Run("GetCameraMetaData_withValidData_returnOk", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		timeNow := time.Now()
 		nullTime := sql.NullTime{
@@ -408,7 +419,8 @@ func TestHandler_GetCameraMetaData(t *testing.T) {
 	t.Run("GetCameraMetaData_withCamId_returnNotFound", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		camID := uuid.New().String()
 
@@ -436,7 +448,8 @@ func TestHandler_GetCameraMetaData(t *testing.T) {
 	t.Run("GetCameraMetaData_withMalformedCamId_returnBadRequest", func(t *testing.T) {
 		//arrange
 		mockCameraStore := new(mockCameraStore)
-		handler := NewHandler(mockCameraStore)
+		mockAzureStorage := new(mockAzureStorage)
+		handler := NewHandler(mockCameraStore, mockAzureStorage)
 
 		camID := "123"
 
@@ -457,6 +470,8 @@ func TestHandler_GetCameraMetaData(t *testing.T) {
 		}
 	})
 }
+
+// TODO 22-07-24 - ozgen : write UploadImage unit tests
 
 type mockCameraStore struct {
 	mock.Mock
@@ -486,4 +501,18 @@ func (m *mockCameraStore) GetCameraMetadataByID(c string) (*types.CameraMetadata
 	}
 
 	return args.Get(0).(*types.CameraMetadata), args.Error(1)
+}
+
+type mockAzureStorage struct {
+	mock.Mock
+}
+
+func (m *mockAzureStorage) UploadImage(ctx context.Context, blobName string, imageData []byte) error {
+	args := m.Called(ctx, blobName, imageData)
+	return args.Error(0)
+}
+
+func (m *mockAzureStorage) DownloadImage(ctx context.Context, blobName string) ([]byte, error) {
+	args := m.Called(ctx, blobName)
+	return args.Get(0).([]byte), args.Error(1)
 }

@@ -2,13 +2,16 @@ package camerametadata
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+	"go-sample-rest-api/config"
 	"go-sample-rest-api/customerrors"
 	"go-sample-rest-api/logging"
+	"go-sample-rest-api/storage"
 	"go-sample-rest-api/types"
 	"go-sample-rest-api/utils"
 	"net/http"
@@ -16,17 +19,19 @@ import (
 )
 
 type Handler struct {
-	store types.CameraMetadataStore
+	store        types.CameraMetadataStore
+	azureStorage storage.ImageStore
 }
 
-func NewHandler(store types.CameraMetadataStore) *Handler {
-	return &Handler{store: store}
+func NewHandler(store types.CameraMetadataStore, azureStorage storage.ImageStore) *Handler {
+	return &Handler{store: store, azureStorage: azureStorage}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/camera_metadata", h.CreateCameraMetadata).Methods(http.MethodPost)
 	router.HandleFunc("/camera_metadata/{camID}/init", h.InitializeCameraMetaData).Methods(http.MethodPatch)
 	router.HandleFunc("/camera_metadata/{camID}", h.GetCameraMetaData).Methods(http.MethodGet)
+	router.HandleFunc("/camera_metadata/{camID}/upload_image", h.UploadImageHandler).Methods("POST")
 }
 
 func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http.Request) {
@@ -137,4 +142,79 @@ func (h *Handler) GetCameraMetaData(writer http.ResponseWriter, request *http.Re
 	}
 
 	utils.WriteJSON(writer, http.StatusOK, cameraResponse)
+}
+
+func (h *Handler) UploadImageHandler(writer http.ResponseWriter, request *http.Request) {
+	log := logging.GetLogger()
+	vars := mux.Vars(request)
+	camID := vars["camID"]
+
+	_, err := uuid.Parse(camID)
+	if err != nil {
+		utils.WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid camID: %v", err))
+		return
+	}
+
+	// Extracting query parameters
+	query := request.URL.Query()
+	imageID := query.Get("imageID")
+	imageAsBytes := utils.NormalizeBase64(query.Get("image_as_bytes"))
+
+	if imageID == "" || imageAsBytes == "" {
+		utils.WriteError(writer, http.StatusBadRequest, fmt.Errorf("Missing required query parameters"))
+		return
+	}
+
+	_, err = uuid.Parse(imageID)
+	if err != nil {
+		utils.WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid imageID: %v", err))
+		return
+	}
+
+	// Assuming imageAsBytes is base64 encoded data
+	imageData, err := base64.StdEncoding.DecodeString(imageAsBytes)
+	if err != nil {
+		utils.WriteError(writer, http.StatusBadRequest, fmt.Errorf("failed to decode image data: %v", err))
+		return
+	}
+
+	cameraMetadata, err := h.store.GetCameraMetadataByID(camID)
+	if err != nil {
+		utils.WriteError(writer, http.StatusNotFound, &customerrors.NotFoundError{ID: camID})
+		return
+	}
+
+	if !cameraMetadata.InitializedAt.Valid {
+		utils.WriteError(writer, http.StatusBadRequest, &customerrors.NotInitError{ID: camID})
+		return
+	}
+
+	cameraMetadata.ImageId = sql.NullString{String: imageID, Valid: true}
+	cameraMetadata.NameOfStoredPicture = sql.NullString{String: imageID, Valid: true}
+	cameraMetadata.ContainerName = sql.NullString{String: config.Envs.AzureContainerName, Valid: true}
+
+	_, err = h.store.UpdateCameraMetadata(*cameraMetadata)
+	if err != nil {
+		utils.WriteError(writer, http.StatusInternalServerError, fmt.Errorf("failed to update camera metadata: %v", err))
+		return
+	}
+
+	err = h.azureStorage.UploadImage(request.Context(), imageID+".png", imageData)
+
+	if err != nil {
+		utils.WriteError(writer, http.StatusInternalServerError, fmt.Errorf("failed to upload image: %v", err))
+		return
+	}
+
+	log.WithFields(logrus.Fields{
+		"camera": cameraMetadata,
+	}).Info("Image uploaded successfully")
+
+	response := types.ImageUploadedResponse{
+		CamID:           cameraMetadata.CamID,
+		CameraName:      cameraMetadata.CameraName,
+		FirmwareVersion: cameraMetadata.FirmwareVersion,
+		ImageId:         cameraMetadata.ImageId,
+	}
+	utils.WriteJSON(writer, http.StatusOK, response)
 }

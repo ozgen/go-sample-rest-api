@@ -15,7 +15,7 @@ type NotInitError struct {
 }
 
 func (e *NotInitError) Error() string {
-	return fmt.Sprintf("item with ID %s not initialized", e.ID)
+	return fmt.Sprintf("camera with ID %s not initialized", e.ID)
 }
 
 type AlreadyInitError struct {
@@ -23,5 +23,5 @@ type AlreadyInitError struct {
 }
 
 func (e *AlreadyInitError) Error() string {
-	return fmt.Sprintf("item with ID %s is already initialized", e.ID)
+	return fmt.Sprintf("camera with ID %s is already initialized", e.ID)
 }

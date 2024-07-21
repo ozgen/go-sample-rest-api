@@ -7,20 +7,23 @@ import (
 	auth2 "go-sample-rest-api/service/auth"
 	"go-sample-rest-api/service/camerametadata"
 	"go-sample-rest-api/service/user"
+	"go-sample-rest-api/storage"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 type APIServer struct {
-	address string
-	db      *sql.DB
+	address      string
+	db           *sql.DB
+	azureStorage *storage.AzureStorage
 }
 
-func NewAPIServer(addr string, db *sql.DB) *APIServer {
+func NewAPIServer(addr string, db *sql.DB, azureStorage *storage.AzureStorage) *APIServer {
 	return &APIServer{
-		address: addr,
-		db:      db,
+		address:      addr,
+		db:           db,
+		azureStorage: azureStorage,
 	}
 }
 
@@ -38,7 +41,7 @@ func (s *APIServer) Run() error {
 
 	// cameraMetadata
 	cameraMetadataStore := camerametadata.NewStore(s.db)
-	cameraMetadataService := camerametadata.NewHandler(cameraMetadataStore)
+	cameraMetadataService := camerametadata.NewHandler(cameraMetadataStore, s.azureStorage)
 	cameraMetadataService.RegisterRoutes(subrouter)
 
 	// Serve static files

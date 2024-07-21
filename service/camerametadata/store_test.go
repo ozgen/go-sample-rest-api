@@ -155,7 +155,7 @@ func TestStore_GetCameraMetadataByID(t *testing.T) {
 		// assert
 		assert.Error(t, err)
 		assert.Nil(t, cameraMetadata)
-		assert.Equal(t, "no camera metadata found with ID: non-existent-id", err.Error())
+		assert.Equal(t, "item with ID non-existent-id not found", err.Error())
 
 	})
 	t.Run("CreateCameraMetaData_withError_toReturnError", func(t *testing.T) {

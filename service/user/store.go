@@ -3,8 +3,9 @@ package user
 import (
 	"database/sql"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	"go-sample-rest-api/logging"
 	"go-sample-rest-api/types"
-	"log"
 )
 
 type Store struct {
@@ -16,13 +17,19 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) CreateUser(user types.User) error {
+	log := logging.GetLogger()
 	_, err := s.db.Exec("INSERT INTO users (firstName, lastName, email, password) VALUES ($1, $2, $3, $4)", user.FirstName, user.LastName, user.Email, user.Password)
 	if err != nil {
-		log.Printf("Failed to create user: %v", err)
+		log.WithFields(logrus.Fields{
+			"error": err,
+			"email": user.Email,
+		}).Error("Failed to create user")
 		return err
 	}
 
-	log.Printf("User created successfully: %s", user.Email)
+	log.WithFields(logrus.Fields{
+		"email": user.Email,
+	}).Info("User created successfully")
 	return nil
 }
 

@@ -57,11 +57,17 @@ This is a toolkit with common assertions and mocks that are used in testing Go c
 - **[UUID](https://github.com/google/uuid)** 
 
 This library is used in our project to generate universally unique identifiers (UUIDs). UUIDs are essential for creating unique keys in our database and ensuring that our data can be uniquely identified across distributed systems.
+
+### Logging
+- **[Logrus](https://github.com/sirupsen/logrus)**
+  Version: Latest
+  Logrus is a structured logger for Go (golang), completely API compatible with the standard library logger. It is better suited for modern, structured logging.
+
 ### Installation of Dependencies
 To install these Go dependencies, run the following command:
 
 ```bash
-go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5 github.com/DATA-DOG/go-sqlmock github.com/stretchr/testify github.com/google/uuid
+go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5 github.com/DATA-DOG/go-sqlmock github.com/stretchr/testify github.com/google/uuid github.com/sirupsen/logrus
 
 ```
 ### Installation of golang-migrate

@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/sirupsen/logrus"
 	"go-sample-rest-api/config"
+	"go-sample-rest-api/logging"
 	"go-sample-rest-api/types"
 	"go-sample-rest-api/utils"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -24,18 +25,23 @@ var validateJWT jwtValidatorFunc = func(tokenString string) (*jwt.Token, error) 
 }
 
 func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStore) http.HandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
+		log := logging.GetLogger()
 		tokenString := utils.GetTokenFromRequest(r)
 
 		token, err := validateJWT(tokenString)
 		if err != nil {
-			log.Printf("failed to validate token: %v", err)
+			log.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("Failed to validate token")
+
 			permissionDenied(w)
 			return
 		}
 
 		if !token.Valid {
-			log.Println("invalid token")
+			log.Error("Invalid token")
 			permissionDenied(w)
 			return
 		}
@@ -45,14 +51,18 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStore) http.Handl
 
 		userID, err := strconv.Atoi(str)
 		if err != nil {
-			log.Printf("failed to convert userID to int: %v", err)
+			log.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("Failed to convert userID to int")
 			permissionDenied(w)
 			return
 		}
 
 		u, err := store.GetUserByID(userID)
 		if err != nil {
-			log.Printf("failed to get user by id: %v", err)
+			log.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("Failed to get user by ID")
 			permissionDenied(w)
 			return
 		}

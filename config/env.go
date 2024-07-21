@@ -13,6 +13,7 @@ type Config struct {
 	DBPort                 string
 	JWTSecret              string
 	JWTExpirationInSeconds int64
+	ServerPort             string
 }
 
 var Envs = initConfig()
@@ -30,5 +31,6 @@ func initConfig() Config {
 		DBPort:                 utils.GetEnv("DB_PORT", "5432"),
 		JWTSecret:              utils.GetEnv("JWT_SECRET", "not-so-secret-now-is-it?"),
 		JWTExpirationInSeconds: utils.GetEnvAsInt("JWT_EXPIRATION_IN_SECONDS", 3600*24*7),
+		ServerPort:             utils.GetEnv("SERVER_PORT", "8080"),
 	}
 }

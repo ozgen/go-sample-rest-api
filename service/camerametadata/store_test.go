@@ -199,6 +199,7 @@ func TestStore_UpdateCameraMetadata(t *testing.T) {
 			CamID:               "123",
 			CameraName:          "Test Camera",
 			FirmwareVersion:     "v1.0",
+			ImageId:             sql.NullString{String: "234", Valid: true},
 			ContainerName:       sql.NullString{String: "Test Container", Valid: true},
 			NameOfStoredPicture: sql.NullString{String: "test_picture.jpg", Valid: true},
 			CreatedAt:           sql.NullTime{Time: time.Now(), Valid: true},
@@ -208,7 +209,7 @@ func TestStore_UpdateCameraMetadata(t *testing.T) {
 
 		mock.ExpectExec("UPDATE camera_metadata").WithArgs(
 			cam.CameraName, cam.FirmwareVersion, cam.ContainerName, cam.NameOfStoredPicture,
-			cam.CreatedAt, cam.OnboardedAt, cam.InitializedAt, cam.CamID,
+			cam.CreatedAt, cam.OnboardedAt, cam.InitializedAt, cam.ImageId, cam.CamID,
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 
 		// act
@@ -231,6 +232,7 @@ func TestStore_UpdateCameraMetadata(t *testing.T) {
 			CamID:               "123",
 			CameraName:          "Test Camera",
 			FirmwareVersion:     "v1.0",
+			ImageId:             sql.NullString{String: "234", Valid: true},
 			ContainerName:       sql.NullString{String: "Test Container", Valid: true},
 			NameOfStoredPicture: sql.NullString{String: "test_picture.jpg", Valid: true},
 			CreatedAt:           sql.NullTime{Time: time.Now(), Valid: true},
@@ -240,7 +242,7 @@ func TestStore_UpdateCameraMetadata(t *testing.T) {
 
 		mock.ExpectExec("UPDATE camera_metadata").WithArgs(
 			cam.CameraName, cam.FirmwareVersion, cam.ContainerName, cam.NameOfStoredPicture,
-			cam.CreatedAt, cam.OnboardedAt, cam.InitializedAt, cam.CamID,
+			cam.CreatedAt, cam.OnboardedAt, cam.InitializedAt, cam.ImageId, cam.CamID,
 		).WillReturnError(sql.ErrNoRows)
 
 		// act
@@ -263,6 +265,7 @@ func TestStore_UpdateCameraMetadata(t *testing.T) {
 			CamID:               "123",
 			CameraName:          "Test Camera",
 			FirmwareVersion:     "v1.0",
+			ImageId:             sql.NullString{String: "234", Valid: true},
 			ContainerName:       sql.NullString{String: "Test Container", Valid: true},
 			NameOfStoredPicture: sql.NullString{String: "test_picture.jpg", Valid: true},
 			CreatedAt:           sql.NullTime{Time: time.Now(), Valid: true},
@@ -272,7 +275,7 @@ func TestStore_UpdateCameraMetadata(t *testing.T) {
 
 		mock.ExpectExec("UPDATE camera_metadata").WithArgs(
 			cam.CameraName, cam.FirmwareVersion, cam.ContainerName, cam.NameOfStoredPicture,
-			cam.CreatedAt, cam.OnboardedAt, cam.InitializedAt, cam.CamID,
+			cam.CreatedAt, cam.OnboardedAt, cam.InitializedAt, cam.ImageId, cam.CamID,
 		).WillReturnError(sql.ErrConnDone)
 
 		// act

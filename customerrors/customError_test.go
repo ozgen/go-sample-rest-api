@@ -22,3 +22,9 @@ func TestAlreadyInitError(t *testing.T) {
 	expectedMessage := "camera with ID 789 is already initialized"
 	assert.Equal(t, expectedMessage, err.Error(), "Error message should match expected output")
 }
+
+func TestAzureStorageError(t *testing.T) {
+	err := &AzureStorageError{Message: "test message"}
+	expectedMessage := "Azure blob storage err: test message"
+	assert.Equal(t, expectedMessage, err.Error(), "Error message should match expected output")
+}

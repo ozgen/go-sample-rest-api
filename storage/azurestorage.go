@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"go-sample-rest-api/customerrors"
 	"go-sample-rest-api/logging"
 	"io/ioutil"
 	"net/url"
@@ -56,7 +57,7 @@ func (az *AzureStorage) UploadImage(ctx context.Context, blobName string, imageD
 		BlockSize: 4 * 1024 * 1024, // 4 MB
 	})
 	if err != nil {
-		return fmt.Errorf("failed to upload image data: %v", err)
+		return &customerrors.AzureStorageError{Message: err.Error()}
 	}
 	return nil
 }
@@ -75,7 +76,7 @@ func (az *AzureStorage) DownloadImage(ctx context.Context, blobName string) ([]b
 		azblob.ClientProvidedKeyOptions{}, // No customer-provided keys
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initiate download: %v", err)
+		return nil, &customerrors.AzureStorageError{Message: err.Error()}
 	}
 
 	// Read the downloaded data
@@ -83,7 +84,7 @@ func (az *AzureStorage) DownloadImage(ctx context.Context, blobName string) ([]b
 	defer bodyStream.Close()
 	data, err := ioutil.ReadAll(bodyStream)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read blob data: %v", err)
+		return nil, &customerrors.AzureStorageError{Message: err.Error()}
 	}
 
 	return data, nil

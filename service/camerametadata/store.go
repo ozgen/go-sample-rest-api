@@ -49,11 +49,12 @@ func (s *Store) UpdateCameraMetadata(camera types.CameraMetadata) (*types.Camera
             name_of_stored_picture = $4, 
             created_at = $5, 
             onboarded_at = $6, 
-            initialized_at = $7
-        WHERE cam_id = $8;
+            initialized_at = $7,
+            image_id = $8
+        WHERE cam_id = $9;
     `
 
-	_, err := s.db.Exec(query, camera.CameraName, camera.FirmwareVersion, camera.ContainerName, camera.NameOfStoredPicture, camera.CreatedAt, camera.OnboardedAt, camera.InitializedAt, camera.CamID)
+	_, err := s.db.Exec(query, camera.CameraName, camera.FirmwareVersion, camera.ContainerName, camera.NameOfStoredPicture, camera.CreatedAt, camera.OnboardedAt, camera.InitializedAt, camera.ImageId, camera.CamID)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"camera": camera,

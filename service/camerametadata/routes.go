@@ -31,7 +31,8 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/camera_metadata", h.CreateCameraMetadata).Methods(http.MethodPost)
 	router.HandleFunc("/camera_metadata/{camID}/init", h.InitializeCameraMetaData).Methods(http.MethodPatch)
 	router.HandleFunc("/camera_metadata/{camID}", h.GetCameraMetaData).Methods(http.MethodGet)
-	router.HandleFunc("/camera_metadata/{camID}/upload_image", h.UploadImageHandler).Methods("POST")
+	router.HandleFunc("/camera_metadata/{camID}/upload_image", h.UploadImageHandler).Methods(http.MethodPost)
+	router.HandleFunc("/camera_metadata/{camID}/download_image", h.DownloadImageHandler).Methods(http.MethodGet)
 }
 
 func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http.Request) {
@@ -217,4 +218,45 @@ func (h *Handler) UploadImageHandler(writer http.ResponseWriter, request *http.R
 		ImageId:         cameraMetadata.ImageId,
 	}
 	utils.WriteJSON(writer, http.StatusOK, response)
+}
+
+func (h *Handler) DownloadImageHandler(writer http.ResponseWriter, request *http.Request) {
+	log := logging.GetLogger()
+	vars := mux.Vars(request)
+	camID := vars["camID"]
+
+	_, err := uuid.Parse(camID)
+	if err != nil {
+		utils.WriteError(writer, http.StatusBadRequest, fmt.Errorf("invalid camID: %v", err))
+		return
+	}
+
+	cameraMetadata, err := h.store.GetCameraMetadataByID(camID)
+	if err != nil {
+		utils.WriteError(writer, http.StatusNotFound, &customerrors.NotFoundError{ID: camID})
+		return
+	}
+
+	if !cameraMetadata.ImageId.Valid {
+		utils.WriteError(writer, http.StatusNotFound, &customerrors.NotFoundError{ID: "ImageId"})
+		return
+	}
+
+	image, err := h.azureStorage.DownloadImage(request.Context(), cameraMetadata.ImageId.String+".png")
+	if err != nil {
+		utils.WriteError(writer, http.StatusInternalServerError, fmt.Errorf("failed to download image: %v", err))
+		return
+	}
+
+	writer.Header().Set("Content-Type", "image/png") // Assuming the image is in PNG format
+	if _, err := writer.Write(image); err != nil {
+		log.WithFields(logrus.Fields{
+			"camID": camID,
+			"error": err,
+		}).Error("Failed to write image to response")
+		utils.WriteError(writer, http.StatusInternalServerError, fmt.Errorf("failed to write image to response: %v", err))
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	log.Infof("Successfully sent image for camera ID: %s", camID)
 }

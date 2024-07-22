@@ -25,3 +25,11 @@ type AlreadyInitError struct {
 func (e *AlreadyInitError) Error() string {
 	return fmt.Sprintf("camera with ID %s is already initialized", e.ID)
 }
+
+type AzureStorageError struct {
+	Message string
+}
+
+func (e *AzureStorageError) Error() string {
+	return fmt.Sprintf("Azure blob storage err: %v", e.Message)
+}

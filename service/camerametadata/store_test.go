@@ -5,12 +5,13 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	db2 "go-sample-rest-api/db"
 	"go-sample-rest-api/types"
 	"testing"
 	"time"
 )
 
-func setupMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock, func()) {
+func setupMockDB(t *testing.T) (*db2.SQLDB, sqlmock.Sqlmock, func()) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("An error '%s' was not expected when opening a stub database connection", err)
@@ -19,8 +20,8 @@ func setupMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock, func()) {
 	cleanup := func() {
 		db.Close()
 	}
-
-	return db, mock, cleanup
+	sqldb := db2.NewSQLDB(db)
+	return sqldb, mock, cleanup
 }
 
 func TestStore_CreateCameraMetadata(t *testing.T) {

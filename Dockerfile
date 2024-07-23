@@ -1,4 +1,4 @@
-FROM golang:1.22.0-alpine as builder
+FROM golang:1.22.0 as builder
 
 WORKDIR /app
 
@@ -8,11 +8,14 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o myapp .
 
-FROM alpine:latest
+FROM alpine:3.14
+
 WORKDIR /root/
 
-COPY --from=builder /app/app .
+COPY --from=builder /app/myapp .
 
-CMD ["./app"]
+EXPOSE 8080
+
+CMD ["./myapp"]

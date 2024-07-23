@@ -19,7 +19,7 @@ jobs:
           go-version: '1.22.0'
 
       - name: Run Tests
-        run: go test ./...
+        run: make test
 
       - name: Set and Export Custom Version
         id: set_version

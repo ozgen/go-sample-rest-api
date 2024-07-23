@@ -4,15 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"go-sample-rest-api/db"
 	"go-sample-rest-api/logging"
 	"go-sample-rest-api/types"
 )
 
 type Store struct {
-	db *sql.DB
+	db db.DB
 }
 
-func NewStore(db *sql.DB) *Store {
+func NewStore(db db.DB) *Store {
 	return &Store{db: db}
 }
 

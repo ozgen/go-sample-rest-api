@@ -8,14 +8,15 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o myapp .
+RUN ls -al
 
+RUN CGO_ENABLED=0 GOOS=linux go build -o /api ./cmd/main.go
 FROM alpine:3.14
 
 WORKDIR /root/
 
-COPY --from=builder /app/myapp .
+COPY --from=builder /app/api .
 
 EXPOSE 8080
 
-CMD ["./myapp"]
+CMD ["./api"]

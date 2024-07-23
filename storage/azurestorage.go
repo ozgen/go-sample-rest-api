@@ -24,7 +24,7 @@ type AzureStorage struct {
 	ServiceURL    *azblob.ServiceURL
 }
 
-func NewAzureStorage(accountName, accountKey, containerName string) *AzureStorage {
+func NewAzureStorage(accountName, accountKey, containerName string) ImageStore {
 	log := logging.GetLogger()
 	cred, err := azblob.NewSharedKeyCredential(accountName, accountKey)
 	if err != nil {

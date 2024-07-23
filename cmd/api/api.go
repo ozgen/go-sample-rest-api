@@ -1,8 +1,8 @@
 package api
 
 import (
-	"database/sql"
 	"github.com/sirupsen/logrus"
+	db2 "go-sample-rest-api/db"
 	"go-sample-rest-api/logging"
 	auth2 "go-sample-rest-api/service/auth"
 	"go-sample-rest-api/service/camerametadata"
@@ -15,11 +15,11 @@ import (
 
 type APIServer struct {
 	address      string
-	db           *sql.DB
-	azureStorage *storage.AzureStorage
+	db           db2.DB
+	azureStorage storage.ImageStore
 }
 
-func NewAPIServer(addr string, db *sql.DB, azureStorage *storage.AzureStorage) *APIServer {
+func NewAPIServer(addr string, db db2.DB, azureStorage storage.ImageStore) *APIServer {
 	return &APIServer{
 		address:      addr,
 		db:           db,

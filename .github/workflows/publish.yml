@@ -1,3 +1,10 @@
+name: Build & Push
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -34,8 +41,10 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/go-app:${{ env.CUSTOM_VERSION }} -f Dockerfile .
+          IMAGE_ID=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/go-app
+          echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+          docker build -t $IMAGE_ID:${{ env.CUSTOM_VERSION }} .
 
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/go-app:${{ env.CUSTOM_VERSION }}
+          docker push ${{ env.IMAGE_ID }}:${{ env.CUSTOM_VERSION }}

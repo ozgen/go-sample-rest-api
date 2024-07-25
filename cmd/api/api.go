@@ -2,12 +2,15 @@ package api
 
 import (
 	"github.com/sirupsen/logrus"
+	"github.com/swaggo/http-swagger"
 	db2 "go-sample-rest-api/db"
+	_ "go-sample-rest-api/docs"
 	"go-sample-rest-api/logging"
 	auth2 "go-sample-rest-api/service/auth"
 	"go-sample-rest-api/service/camerametadata"
 	"go-sample-rest-api/service/user"
 	"go-sample-rest-api/storage"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -45,11 +48,26 @@ func (s *APIServer) Run() error {
 	cameraMetadataService.RegisterRoutes(subrouter)
 
 	// Serve static files
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
+	subrouter.HandleFunc("/swagger.json", serveSwaggerFile).Methods(http.MethodGet)
+	subrouter.PathPrefix("/documentation/").Handler(httpSwagger.WrapHandler)
 
 	log.WithFields(logrus.Fields{
 		"address": s.address,
 	}).Info("Listening on")
 
 	return http.ListenAndServe(s.address, router)
+}
+
+func serveSwaggerFile(w http.ResponseWriter, r *http.Request) {
+	// Path to the swagger file
+	swaggerFilePath := "./docs/swagger.json"
+
+	swaggerFile, err := ioutil.ReadFile(swaggerFilePath)
+	if err != nil {
+		http.Error(w, "Failed to read swagger file: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(swaggerFile)
 }

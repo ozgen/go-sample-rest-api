@@ -30,6 +30,18 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/users/{userID}", auth2.WithJWTAuth(h.handleGetUser, h.store)).Methods(http.MethodGet)
 }
 
+// handleLogin godoc
+// @Summary User login
+// @Description Login with email and password.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body types.LoginUserPayload true "Login Credentials"
+// @Success 200 {object} map[string]string "token: JWT Token on successful login."
+// @Failure 400 {object} types.HTTPError "Bad Request when the payload is invalid."
+// @Failure 404 {object} types.HTTPError "Not Found, invalid email or password."
+// @Failure 500 {object} types.HTTPError "Internal Server Error"
+// @Router /login [post]
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	var user types.LoginUserPayload
 	if err := utils.ParseJSON(r, &user); err != nil {
@@ -64,6 +76,17 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
+// handleRegister godoc
+// @Summary Register a new user
+// @Description Register a new user with name, email, and password.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body types.RegisterUserPayload true "Register Information"
+// @Success 201 {object} nil "Successfully registered and no content returned."
+// @Failure 400 {object} types.HTTPError "Bad Request if the payload is invalid or user exists."
+// @Failure 500 {object} types.HTTPError "Internal Server Error if database error occurs."
+// @Router /register [post]
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	var user types.RegisterUserPayload
 	if err := utils.ParseJSON(r, &user); err != nil {
@@ -105,6 +128,18 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, nil)
 }
 
+// GetUser godoc
+// @Summary Get a user by ID
+// @Description Get detailed information about a user.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} types.User "Successful retrieval of user detail."
+// @Failure 400 {object} types.HTTPError "Bad Request if user ID is missing or invalid."
+// @Failure 404 {object} types.HTTPError "Not Found if user does not exist."
+// @Failure 500 {object} types.HTTPError "Internal Server Error"
+// @Router /users/{id} [get]
 func (h *Handler) handleGetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	str, ok := vars["userID"]

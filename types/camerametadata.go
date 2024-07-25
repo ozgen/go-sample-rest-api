@@ -2,6 +2,7 @@ package types
 
 import (
 	"database/sql"
+	"time"
 )
 
 type CameraMetadata struct {
@@ -22,16 +23,16 @@ type CameraMetadataPayload struct {
 }
 
 type CameraMetadataResponse struct {
-	CamID           string       `json:"cam_id"`
-	CameraName      string       `json:"camera_name"`
-	FirmwareVersion string       `json:"firmware_version"`
-	CreatedAt       sql.NullTime `json:"createdAt"`
+	CamID           string    `json:"cam_id"`
+	CameraName      string    `json:"camera_name"`
+	FirmwareVersion string    `json:"firmware_version"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
 type ImageUploadedResponse struct {
-	CamID           string         `json:"cam_id"`
-	CameraName      string         `json:"camera_name"`
-	FirmwareVersion string         `json:"firmware_version"`
-	ImageId         sql.NullString `json:"image_id"`
+	CamID           string `json:"cam_id"`
+	CameraName      string `json:"camera_name"`
+	FirmwareVersion string `json:"firmware_version"`
+	ImageId         string `json:"image_id"`
 }
 
 type CameraMetadataStore interface {

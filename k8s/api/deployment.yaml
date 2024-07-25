@@ -15,7 +15,7 @@ spec:
         app: ozgen-go-api
     spec:
       containers:
-        - image: ozgenm/go-app:20240723-4ccdb76
+        - image: ozgenm/go-app:20240725-2929e16
           name: ozgen-go-api
           resources:
             requests:

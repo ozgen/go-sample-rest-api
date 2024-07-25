@@ -19,3 +19,6 @@ migrate-up:
 
 migrate-down:
 	@go run cmd/migrate/main.go down
+
+swagger:
+	swag init -d ./,./service/user,./service/camerametadata --generalInfo service/user/routes.go --output docs/

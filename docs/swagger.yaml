@@ -1,0 +1,351 @@
+definitions:
+  types.CameraMetadataPayload:
+    properties:
+      camera_name:
+        type: string
+      firmware_version:
+        type: string
+    required:
+    - camera_name
+    - firmware_version
+    type: object
+  types.CameraMetadataResponse:
+    properties:
+      cam_id:
+        type: string
+      camera_name:
+        type: string
+      createdAt:
+        type: string
+      firmware_version:
+        type: string
+    type: object
+  types.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  types.ImageUploadedResponse:
+    properties:
+      cam_id:
+        type: string
+      camera_name:
+        type: string
+      firmware_version:
+        type: string
+      image_id:
+        type: string
+    type: object
+  types.LoginUserPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  types.RegisterUserPayload:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        maxLength: 130
+        minLength: 3
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    type: object
+  types.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /camera_metadata:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new camera metadata entry.
+      parameters:
+      - description: Camera Metadata Info
+        in: body
+        name: cameraMetadata
+        required: true
+        schema:
+          $ref: '#/definitions/types.CameraMetadataPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Camera metadata successfully created.
+          schema:
+            $ref: '#/definitions/types.CameraMetadataResponse'
+        "400":
+          description: Invalid request parameters.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "500":
+          description: Internal server error.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: Create camera metadata
+      tags:
+      - camera
+  /camera_metadata/{camID}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves metadata for a specific camera.
+      parameters:
+      - description: Camera ID
+        in: path
+        name: camID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Camera metadata found.
+          schema:
+            $ref: '#/definitions/types.CameraMetadataResponse'
+        "400":
+          description: Invalid camera ID.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "404":
+          description: Camera metadata not found.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: Get camera metadata
+      tags:
+      - camera
+  /camera_metadata/{camID}/download_image:
+    get:
+      description: Downloads an image file associated with a camera.
+      parameters:
+      - description: Camera ID
+        in: path
+        name: camID
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Image file downloaded successfully.
+          schema:
+            type: file
+        "400":
+          description: Invalid camera ID.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "404":
+          description: Image not found.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "500":
+          description: Failed to download image.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: Download an image from a camera
+      tags:
+      - camera
+  /camera_metadata/{camID}/init:
+    patch:
+      consumes:
+      - application/json
+      description: Marks a camera metadata entry as initialized.
+      parameters:
+      - description: Camera ID
+        in: path
+        name: camID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Camera metadata initialized successfully.
+        "400":
+          description: Invalid camera ID.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "404":
+          description: Camera not found.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "409":
+          description: Camera already initialized.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "500":
+          description: Internal server error.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: Initialize camera metadata
+      tags:
+      - camera
+  /camera_metadata/{camID}/upload_image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an image file associated with a camera.
+      parameters:
+      - description: Camera ID
+        in: path
+        name: camID
+        required: true
+        type: string
+      - description: Image ID
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: Base64 encoded image data
+        in: body
+        name: image_as_bytes
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Image uploaded successfully.
+          schema:
+            $ref: '#/definitions/types.ImageUploadedResponse'
+        "400":
+          description: Bad request parameters.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "404":
+          description: Camera metadata not found.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "500":
+          description: Failed to upload image.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: Upload an image to a camera
+      tags:
+      - camera
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password.
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/types.LoginUserPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'token: JWT Token on successful login.'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request when the payload is invalid.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "404":
+          description: Not Found, invalid email or password.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: User login
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with name, email, and password.
+      parameters:
+      - description: Register Information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/types.RegisterUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully registered and no content returned.
+        "400":
+          description: Bad Request if the payload is invalid or user exists.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "500":
+          description: Internal Server Error if database error occurs.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: Register a new user
+      tags:
+      - auth
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a user.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful retrieval of user detail.
+          schema:
+            $ref: '#/definitions/types.User'
+        "400":
+          description: Bad Request if user ID is missing or invalid.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "404":
+          description: Not Found if user does not exist.
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/types.HTTPError'
+      summary: Get a user by ID
+      tags:
+      - users
+swagger: "2.0"

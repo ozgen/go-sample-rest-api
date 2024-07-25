@@ -35,6 +35,17 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/camera_metadata/{camID}/download_image", h.DownloadImageHandler).Methods(http.MethodGet)
 }
 
+// CreateCameraMetadata godoc
+// @Summary Create camera metadata
+// @Description Creates a new camera metadata entry.
+// @Tags camera
+// @Accept json
+// @Produce json
+// @Param cameraMetadata body types.CameraMetadataPayload true "Camera Metadata Info"
+// @Success 201 {object} types.CameraMetadataResponse "Camera metadata successfully created."
+// @Failure 400 {object} types.HTTPError "Invalid request parameters."
+// @Failure 500 {object} types.HTTPError "Internal server error."
+// @Router /camera_metadata [post]
 func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http.Request) {
 	var cameraMetadata types.CameraMetadataPayload
 	log := logging.GetLogger()
@@ -77,11 +88,24 @@ func (h *Handler) CreateCameraMetadata(writer http.ResponseWriter, request *http
 		CamID:           savedCamera.CamID,
 		CameraName:      savedCamera.CameraName,
 		FirmwareVersion: savedCamera.FirmwareVersion,
-		CreatedAt:       savedCamera.CreatedAt,
+		CreatedAt:       savedCamera.CreatedAt.Time,
 	}
 	utils.WriteJSON(writer, http.StatusCreated, cameraResponse)
 }
 
+// InitializeCameraMetaData godoc
+// @Summary Initialize camera metadata
+// @Description Marks a camera metadata entry as initialized.
+// @Tags camera
+// @Accept json
+// @Produce json
+// @Param camID path string true "Camera ID"
+// @Success 200 {object} nil "Camera metadata initialized successfully."
+// @Failure 400 {object} types.HTTPError "Invalid camera ID."
+// @Failure 404 {object} types.HTTPError "Camera not found."
+// @Failure 409 {object} types.HTTPError "Camera already initialized."
+// @Failure 500 {object} types.HTTPError "Internal server error."
+// @Router /camera_metadata/{camID}/init [patch]
 func (h *Handler) InitializeCameraMetaData(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	camID := vars["camID"]
@@ -119,6 +143,17 @@ func (h *Handler) InitializeCameraMetaData(writer http.ResponseWriter, request *
 	utils.WriteJSON(writer, http.StatusOK, nil)
 }
 
+// GetCameraMetaData godoc
+// @Summary Get camera metadata
+// @Description Retrieves metadata for a specific camera.
+// @Tags camera
+// @Accept json
+// @Produce json
+// @Param camID path string true "Camera ID"
+// @Success 200 {object} types.CameraMetadataResponse "Camera metadata found."
+// @Failure 400 {object} types.HTTPError "Invalid camera ID."
+// @Failure 404 {object} types.HTTPError "Camera metadata not found."
+// @Router /camera_metadata/{camID} [get]
 func (h *Handler) GetCameraMetaData(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	camID := vars["camID"]
@@ -139,12 +174,26 @@ func (h *Handler) GetCameraMetaData(writer http.ResponseWriter, request *http.Re
 		CamID:           cameraMetadata.CamID,
 		CameraName:      cameraMetadata.CameraName,
 		FirmwareVersion: cameraMetadata.FirmwareVersion,
-		CreatedAt:       cameraMetadata.CreatedAt,
+		CreatedAt:       cameraMetadata.CreatedAt.Time,
 	}
 
 	utils.WriteJSON(writer, http.StatusOK, cameraResponse)
 }
 
+// UploadImageHandler godoc
+// @Summary Upload an image to a camera
+// @Description Uploads an image file associated with a camera.
+// @Tags camera
+// @Accept multipart/form-data
+// @Produce json
+// @Param camID path string true "Camera ID"
+// @Param imageID query string true "Image ID"
+// @Param image_as_bytes body string true "Base64 encoded image data"
+// @Success 200 {object} types.ImageUploadedResponse "Image uploaded successfully."
+// @Failure 400 {object} types.HTTPError "Bad request parameters."
+// @Failure 404 {object} types.HTTPError "Camera metadata not found."
+// @Failure 500 {object} types.HTTPError "Failed to upload image."
+// @Router /camera_metadata/{camID}/upload_image [post]
 func (h *Handler) UploadImageHandler(writer http.ResponseWriter, request *http.Request) {
 	log := logging.GetLogger()
 	vars := mux.Vars(request)
@@ -215,11 +264,22 @@ func (h *Handler) UploadImageHandler(writer http.ResponseWriter, request *http.R
 		CamID:           cameraMetadata.CamID,
 		CameraName:      cameraMetadata.CameraName,
 		FirmwareVersion: cameraMetadata.FirmwareVersion,
-		ImageId:         cameraMetadata.ImageId,
+		ImageId:         cameraMetadata.ImageId.String,
 	}
 	utils.WriteJSON(writer, http.StatusOK, response)
 }
 
+// DownloadImageHandler godoc
+// @Summary Download an image from a camera
+// @Description Downloads an image file associated with a camera.
+// @Tags camera
+// @Produce octet-stream
+// @Param camID path string true "Camera ID"
+// @Success 200 {file} file "Image file downloaded successfully."
+// @Failure 400 {object} types.HTTPError "Invalid camera ID."
+// @Failure 404 {object} types.HTTPError "Image not found."
+// @Failure 500 {object} types.HTTPError "Failed to download image."
+// @Router /camera_metadata/{camID}/download_image [get]
 func (h *Handler) DownloadImageHandler(writer http.ResponseWriter, request *http.Request) {
 	log := logging.GetLogger()
 	vars := mux.Vars(request)

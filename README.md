@@ -115,6 +115,11 @@ The project includes a Makefile for simplifying common tasks:
   make migrate-down
   ```
 
+- **Generate Swagger Documentation**
+  ```bash
+  make swagger
+  ```
+
 ## Debugging the Application
 
 ### Setting Up for Debugging
@@ -241,3 +246,35 @@ This command creates a new namespace named `ozgen` where all your Kubernetes res
 
 - For database connectivity problems, verify that port forwarding is correctly established and that the database credentials are properly configured.
 
+
+---
+
+## API Documentation
+
+### Access Swagger UI
+
+Our API documentation is available via Swagger UI, which allows you to interact with the API's endpoints directly through your browser. To view the interactive documentation, visit:
+
+[Swagger API Documentation](http://localhost:8080/api/v1/documentation/index.html)
+
+### Integration Details
+
+The documentation is automatically generated and served using the `swaggo/http-swagger` middleware integrated into our Go application. This setup ensures that the API documentation is always up-to-date with the latest codebase.
+
+```go
+import (
+    "github.com/gorilla/mux"
+    "github.com/swaggo/http-swagger"       // HTTP Swagger middleware
+    "github.com/swaggo/http-swagger/swaggerFiles" // Swagger embed files
+)
+
+func setupRouter() *mux.Router {
+    r := mux.NewRouter()
+	r.PathPrefix("/documentation/").Handler(httpSwagger.WrapHandler)
+    return r
+}
+```
+
+Please make sure to update the URL appropriately if your application is deployed to a different environment.
+
+---

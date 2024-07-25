@@ -1,0 +1,12 @@
+namespace: ozgen
+
+resources:
+  
+  - postgres/sa.yaml
+  - postgres/secret.yaml
+  - postgres/service.yaml
+  - postgres/netpol.yaml
+  - postgres/statefulset.yaml
+  - api/deployment.yaml
+  - api/service.yaml
+  - api/secret.yaml

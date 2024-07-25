@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ozgen-go-api
+  name: ozgen-go-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ozgen-go-api
+  template:
+    metadata:
+      labels:
+        app: ozgen-go-api
+    spec:
+      containers:
+        - image: ozgenm/go-app:20240723-4ccdb76
+          name: ozgen-go-api
+          resources:
+            requests:
+              cpu: 0.2
+              memory: 500Mi
+            limits:
+              cpu: 0.2
+              memory: 500Mi
+          ports:
+            - protocol: TCP
+              containerPort: 8080
+              name: api
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: ozgen-go-secret-api
+            - secretRef:
+                name: ozgen-go-secret-storage

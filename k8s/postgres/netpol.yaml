@@ -30,7 +30,6 @@ metadata:
   namespace: ozgen
   labels:
     app.kubernetes.io/instance: my-postgres
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: postgresql
     app.kubernetes.io/component: primary
 spec:

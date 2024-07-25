@@ -158,3 +158,86 @@ Ensure that your firewall settings allow traffic on the port if debugging remote
 - **Step Execution:** Utilize step over, step into, and step out functionalities to navigate through your code.
 
 This setup provides a comprehensive debugging environment that aids in developing robust applications by allowing developers to find and fix issues efficiently.
+
+---
+
+## Deployment Instructions
+
+This section provides detailed instructions on how to deploy the Go application and PostgreSQL database using Kubernetes and Kustomize.
+
+### Prerequisites
+
+- **Kubernetes Cluster**: Ensure you have access to a Kubernetes cluster.
+- **kubectl**: You need to have `kubectl` installed and configured to interact with your Kubernetes cluster.
+- **Kustomize**: Ensure that `kustomize` is installed on your machine to customize Kubernetes configurations.
+
+### Setup Kubernetes Namespace
+
+Before deploying any resources, create the `ozgen` namespace to isolate resources in your Kubernetes cluster:
+
+```bash
+kubectl create namespace ozgen
+```
+
+This command creates a new namespace named `ozgen` where all your Kubernetes resources will be deployed.
+
+### Deployment Process
+
+#### Deploy PostgreSQL
+
+1. **Deploy PostgreSQL Resources**:
+   Navigate to the project directory and deploy the PostgreSQL resources within the `ozgen` namespace. This step should be done first, as the application depends on the database being available.
+
+   ```bash
+   kustomize build k8s/postgres | kubectl apply -f - -n ozgen
+   ```
+
+2. **Set Up Port Forwarding**:
+   After deploying PostgreSQL, set up port forwarding to access PostgreSQL from your local machine for initial database setup and migrations.
+
+   ```bash
+   kubectl port-forward svc/my-postgres 5432:5432 -n ozgen
+   ```
+
+   Replace `svc/my-postgres` with the actual service name of your PostgreSQL instance.
+
+3. **Initialize the Database**:
+   With port forwarding in place, proceed to create the database schema and run migrations.
+
+   ```bash
+   make migration up
+   ```
+
+   Ensure that your `Makefile` includes the necessary commands for handling database migrations.
+
+#### Deploy Go Application
+
+1. **Deploy Application**:
+   Once the database is ready, deploy the Go application into the `ozgen` namespace.
+
+   ```bash
+   kustomize build k8s/api | kubectl apply -f - -n ozgen
+   ```
+
+2. **Verify Deployment**:
+   Confirm that the application is running smoothly by checking the status of the deployed pods.
+
+   ```bash
+   kubectl get pods -n ozgen
+   ```
+
+### Additional Notes
+
+- **Configuration**: Check that the application's configuration, especially the database connection details, are correctly set in `api/secret.yaml`.
+- **Security**: Always ensure your Kubernetes configurations and secrets are secure, particularly when managing sensitive data like database credentials.
+
+### Troubleshooting
+
+- If you run into any deployment issues, review the logs of your Kubernetes pods for clues:
+
+  ```bash
+  kubectl logs <pod-name> -n ozgen
+  ```
+
+- For database connectivity problems, verify that port forwarding is correctly established and that the database credentials are properly configured.
+

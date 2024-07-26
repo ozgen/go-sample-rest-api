@@ -6,6 +6,5 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     allow:
-      - dependency-name:
         security: true
     rebase-strategy: 'auto'

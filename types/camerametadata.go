@@ -28,6 +28,7 @@ type CameraMetadataResponse struct {
 	FirmwareVersion string    `json:"firmware_version"`
 	CreatedAt       time.Time `json:"createdAt"`
 }
+
 type ImageUploadedResponse struct {
 	CamID           string `json:"cam_id"`
 	CameraName      string `json:"camera_name"`

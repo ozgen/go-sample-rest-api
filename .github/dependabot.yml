@@ -5,6 +5,4 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
-    allow:
-        security: true
     rebase-strategy: 'auto'

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"github.com/swaggo/http-swagger"
 	db2 "go-sample-rest-api/db"
@@ -12,8 +14,6 @@ import (
 	"go-sample-rest-api/storage"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 type APIServer struct {
@@ -50,6 +50,8 @@ func (s *APIServer) Run() error {
 	// Serve static files
 	subrouter.HandleFunc("/swagger.json", serveSwaggerFile).Methods(http.MethodGet)
 	subrouter.PathPrefix("/documentation/").Handler(httpSwagger.WrapHandler)
+	// metrics
+	router.Handle("/metrics", promhttp.Handler())
 
 	log.WithFields(logrus.Fields{
 		"address": s.address,

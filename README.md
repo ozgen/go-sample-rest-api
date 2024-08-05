@@ -3,7 +3,7 @@
 
 ## Project Overview
 
-This repository demonstrates the implementation of a RESTful API in Go with integration to Azure Blob Storage for handling image uploads and downloads. It leverages popular Go libraries for web routing, environment management, database interactions, and more, following best practices to provide a robust backend service.
+This repository demonstrates the implementation of a RESTful API in Go with integration to Azure Blob Storage for handling image uploads and downloads. It also includes Prometheus metrics to monitor the API performance and health. The API leverages popular Go libraries for web routing, environment management, database interactions, and more, following best practices to provide a robust backend service.
 
 ## Prerequisites
 
@@ -20,13 +20,14 @@ Here are the primary libraries and tools used:
 - **[Go JWT](https://github.com/golang-jwt/jwt)** - For authentication.
 - **[golang-migrate](https://github.com/golang-migrate/migrate)** - For database migrations.
 - **[Azure Storage Blob Go](https://github.com/Azure/azure-storage-blob-go)** - For managing Azure Blob Storage.
+- **[Prometheus Go Client](https://github.com/prometheus/client_golang)** - For exposing custom metrics collected from the API.
 
 ## Installation
 
 Install all dependencies at once:
 
 ```bash
-go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5 github.com/DATA-DOG/go-sqlmock github.com/stretchr/testify github.com/google/uuid github.com/sirupsen/logrus github.com/Azure/azure-storage-blob-go/azblob
+go get -u github.com/gorilla/mux github.com/joho/godotenv github.com/lib/pq github.com/go-playground/validator/v10 github.com/golang-jwt/jwt/v5 github.com/DATA-DOG/go-sqlmock github.com/stretchr/testify github.com/google/uuid github.com/sirupsen/logrus github.com/Azure/azure-storage-blob-go/azblob github.com/prometheus/client_golang/prometheus github.com/prometheus/client_golang/prometheus/promhttp
 ```
 
 ### Database Migration Tool
@@ -60,12 +61,17 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 make debug        # Start the application in debug mode
 ```
 
-### API Documentation
+### API and Metrics Documentation
 
 Swagger UI is accessible at:
 [Swagger API Documentation](http://localhost:8080/api/v1/documentation/index.html)
 
 Swagger is served using `swaggo/http-swagger` integrated into the Gorilla Mux setup.
+
+Prometheus metrics are exposed at:
+[Prometheus Metrics Endpoint](http://localhost:8080/metrics)
+
+This endpoint is used by Prometheus to collect metrics about the application's performance and health, leveraging the Prometheus Go client.
 
 ## Deployment Instructions
 

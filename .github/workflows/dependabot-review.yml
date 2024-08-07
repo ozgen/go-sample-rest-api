@@ -21,7 +21,7 @@ jobs:
           echo "The latest review state of the PR is: $review_state"
           echo "::set-output name=state::$review_state"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.OZGEN_BOT_TOKEN }}
 
       - name: Dependabot metadata
         if: steps.pr_review_status.outputs.state != 'APPROVED'
@@ -33,15 +33,11 @@ jobs:
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.OZGEN_BOT_TOKEN}}
 
-      - name: Approve dependency updates
+      - name: Approve updates
         if: steps.pr_review_status.outputs.state != 'APPROVED'
         run: gh pr review $PR_URL --approve -b "I'm **approving** this pull request because **it includes dependency update**"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-      - name: Checkout Repository
-        if: steps.pr_review_status.outputs.state != 'APPROVED'
-        uses: actions/checkout@v2
+          GITHUB_TOKEN: ${{secrets.OZGEN_BOT_TOKEN}}

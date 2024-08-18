@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-init
+  labels:
+    name: ozgen-grafana
+data:
+  grafana.ini: |
+    [analytics]
+    check_for_updates = true
+    [grafana_net]
+    url = https://grafana.net
+    [log]
+    mode = console
+    [paths]
+    data = /var/lib/grafana/data
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    [azure]
+    managed_identity_enabled = true
+    managed_identity_client_id = a1d3d092-5611-4d7a-8b04-36d2921fe5c8
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  labels:
+    name: ozgen-grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - access: proxy
+        isDefault: true
+        name: prometheus
+        type: prometheus
+        readOnly: false
+        url: http://prometheus-service:9090
+        version: 1
+      - name: Azure Monitor
+        type: grafana-azure-monitor-datasource
+        access: proxy
+        jsonData:
+          azureAuthType: clientsecret
+          cloudName: azuremonitor # See table below
+          tenantId: 01c9ac3c-8072-4eae-bf43-f79a8d09ae90
+          clientId: 4299739f-da88-47e1-859f-1baf124f9e42
+          subscriptionId: cddd57db-cebc-4031-9e8b-af06407c8745
+        secureJsonData:
+          clientSecret: PHY8Q~YmMoAllxBHtmaXySbToOgeNoVt1MsEPaWa
+        version: 1
+      - name: Azure Monitor 2
+        type: grafana-azure-monitor-datasource
+        access: proxy
+        jsonData:
+          azureAuthType: msi
+          subscriptionId: cddd57db-cebc-4031-9e8b-af06407c8745
+        version: 1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-providers
+  labels:
+    name: ozgen-grafana
+data:
+  dashboardproviders.yaml: |
+    apiVersion: 1
+    providers:
+      - disableDeletion: false
+        editable: true
+        folder: ""
+        name: default
+        options:
+          path: /var/lib/grafana/dashboards
+        orgId: 1
+        type: file

@@ -19,7 +19,7 @@ spec:
         prometheus.io/path: "/metrics"
     spec:
       containers:
-        - image: ozgenm/go-app:20240725-2929e16
+        - image: ozgenm/go-app:20240807-9a9564b
           name: ozgen-go-api
           resources:
             requests:

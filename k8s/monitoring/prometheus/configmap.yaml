@@ -6,14 +6,7 @@ data:
   prometheus.yml: |
     global:
       scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-    rule_files:
-      - conf/alert.rules.yml
-    alerting:
-      alertmanagers:
-        - static_configs:
-            - targets:
-                - 'alertmanager-svc.ozgen.svc:9093'
-    
+  
     scrape_configs:
       - job_name: 'k8s-pods'
         kubernetes_sd_configs:
@@ -42,21 +35,4 @@ data:
       - job_name: 'prometheus'
         static_configs:
           - targets: [ 'localhost:9090' ]
-      - job_name: 'node-exporter'
-        kubernetes_sd_configs:
-          - role: endpoints
-        relabel_configs:
-          - source_labels: [ __meta_kubernetes_endpoints_name ]
-            regex: 'node-exporter'
-            action: keep
-      - job_name: 'kube-state-metrics'
-        static_configs:
-        - targets: ['kube-state-metrics.ozgen.svc.cluster.local:8080']
-      - job_name: pushgateway
-        honor_labels: false
-        static_configs:
-        - targets: ['gateway-prometheus-pushgateway:9091']
-          labels:
-            pushgateway_instance: my_batch_job
          
-          

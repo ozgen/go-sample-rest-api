@@ -1,11 +1,11 @@
-# overlays/ozgen/kustomization.yaml
-namespace: ozgen
+# overlays/monitoring/kustomization.yaml
+namespace: monitoring
 resources:
-  - postgres/sa.yaml
-  - postgres/secret.yaml
-  - postgres/service.yaml
-  - postgres/netpol.yaml
-  - postgres/statefulset.yaml
-  - api/deployment.yaml
-  - api/service.yaml
-  - api/secret.yaml
+  - prometheus/roles.yaml
+  - prometheus/configmap.yaml
+  - prometheus/service.yaml
+  - prometheus/statefulset.yaml
+  - grafana/configmap.yaml
+  - grafana/dashboard.yaml
+  - grafana/service.yaml
+  - grafana/deployment.yaml

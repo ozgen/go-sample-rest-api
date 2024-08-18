@@ -1,12 +1,4 @@
-namespace: ozgen
-
+# k8s/kustomization.yaml
 resources:
-  
-  - postgres/sa.yaml
-  - postgres/secret.yaml
-  - postgres/service.yaml
-  - postgres/netpol.yaml
-  - postgres/statefulset.yaml
-  - api/deployment.yaml
-  - api/service.yaml
-  - api/secret.yaml
+  - ozgen
+  - monitoring

@@ -1,0 +1,14 @@
+# k8s/kustomization.yaml
+resources:
+  - ozgen/postgres/sa.yaml
+  - ozgen/postgres/secret.yaml
+  - ozgen/postgres/service.yaml
+  - ozgen/postgres/netpol.yaml
+  - ozgen/postgres/statefulset.yaml
+  - ozgen/api/deployment.yaml
+  - ozgen/api/service.yaml
+  - ozgen/api/secret.yaml
+  - monitoring/prometheus/configmap.yaml
+  - monitoring/prometheus/roles.yaml
+  - monitoring/prometheus/service.yaml
+  - monitoring/prometheus/statefulset.yaml

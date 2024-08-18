@@ -49,6 +49,13 @@ func ParseJSON(r *http.Request, v any) error {
 
 	return json.NewDecoder(r.Body).Decode(v)
 }
+func ParseJSONResponse(r *http.Response, v any) error {
+	if r.Body == nil {
+		return fmt.Errorf("missing request body")
+	}
+
+	return json.NewDecoder(r.Body).Decode(v)
+}
 
 func GetTokenFromRequest(r *http.Request) string {
 	tokenAuth := r.Header.Get("Authorization")

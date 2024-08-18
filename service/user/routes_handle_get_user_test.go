@@ -1,26 +1,25 @@
 package user
 
 import (
-	"bytes"
 	"fmt"
-	"go-sample-rest-api/types"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
+	"github.com/gorilla/mux"
+	"go-sample-rest-api/types"
+	"go-sample-rest-api/utils"
 )
 
-func TestUserService_Handle_Register(t *testing.T) {
-	t.Run("invalid JSON payload", func(t *testing.T) {
+func TestUserService_Handle_GetUser(t *testing.T) {
+	t.Run("missing user ID in URL", func(t *testing.T) {
 		// arrange
 		handler := NewHandler(new(mockUserStore), new(MockAuthenticator))
+		req, _ := http.NewRequest(http.MethodGet, "/users/", nil) // Missing userID in the URL
+		rr := httptest.NewRecorder()
 
 		// act
-		req, _ := http.NewRequest(http.MethodPost, "/register", bytes.NewBufferString("{invalid json"))
-		rr := httptest.NewRecorder()
-		handler.handleRegister(rr, req)
+		handler.handleGetUser(rr, req)
 
 		// assert
 		if status := rr.Code; status != http.StatusBadRequest {
@@ -28,19 +27,16 @@ func TestUserService_Handle_Register(t *testing.T) {
 		}
 	})
 
-	t.Run("invalid payload data", func(t *testing.T) {
+	t.Run("invalid user ID", func(t *testing.T) {
 		// arrange
-		mockUserStore := new(mockUserStore)
-		mockAuth := new(MockAuthenticator)
-		handler := NewHandler(mockUserStore, mockAuth)
-
-		userData := `{"email": "test@test.com", "password": ""}` // Invalid because password is empty
-		req, _ := http.NewRequest(http.MethodPost, "/register", strings.NewReader(userData))
-		req.Header.Set("Content-Type", "application/json")
+		handler := NewHandler(new(mockUserStore), new(MockAuthenticator))
+		router := mux.NewRouter()
+		router.HandleFunc("/users/{userID}", handler.handleGetUser)
+		req, _ := http.NewRequest(http.MethodGet, "/users/abc", nil) // 'abc' is not a valid user ID
 		rr := httptest.NewRecorder()
 
 		// act
-		handler.handleRegister(rr, req)
+		router.ServeHTTP(rr, req)
 
 		// assert
 		if status := rr.Code; status != http.StatusBadRequest {
@@ -48,109 +44,51 @@ func TestUserService_Handle_Register(t *testing.T) {
 		}
 	})
 
-	t.Run("user already exists", func(t *testing.T) {
+	t.Run("user not found", func(t *testing.T) {
 		// arrange
 		mockUserStore := new(mockUserStore)
-		mockAuth := new(MockAuthenticator)
-		handler := NewHandler(mockUserStore, mockAuth)
+		handler := NewHandler(mockUserStore, new(MockAuthenticator))
+		router := mux.NewRouter()
+		router.HandleFunc("/users/{userID}", handler.handleGetUser)
 
-		userData := `{"firstName": "John", "lastName": "Doe", "email": "exists@test.com", "password": "password123"}`
-		mockUserStore.On("GetUserByEmail", "exists@test.com").Return(&types.User{}, nil) // User already exists
-
-		req, _ := http.NewRequest(http.MethodPost, "/register", strings.NewReader(userData))
-		req.Header.Set("Content-Type", "application/json")
+		mockUserStore.On("GetUserByID", 1).Return(nil, fmt.Errorf("user not found"))
+		req, _ := http.NewRequest(http.MethodGet, "/users/1", nil)
 		rr := httptest.NewRecorder()
 
 		// act
-		handler.handleRegister(rr, req)
-
-		// assert
-		if status := rr.Code; status != http.StatusBadRequest {
-			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
-		}
-
-		mockUserStore.AssertExpectations(t)
-	})
-
-	t.Run("error during user creation", func(t *testing.T) {
-		// arrange
-		mockUserStore := new(mockUserStore)
-		mockAuth := new(MockAuthenticator)
-		handler := NewHandler(mockUserStore, mockAuth)
-
-		userData := `{"firstName": "John", "lastName": "Doe", "email": "john@doe.com", "password": "password123"}`
-		mockUserStore.On("GetUserByEmail", "john@doe.com").Return(nil, fmt.Errorf("not found"))
-		mockAuth.On("HashPassword", "password123").Return("hashedPassword123", nil)
-		mockUserStore.On("CreateUser", mock.Anything).Return(fmt.Errorf("db error"))
-
-		req, _ := http.NewRequest(http.MethodPost, "/register", strings.NewReader(userData))
-		req.Header.Set("Content-Type", "application/json")
-		rr := httptest.NewRecorder()
-
-		// act
-		handler.handleRegister(rr, req)
+		router.ServeHTTP(rr, req)
 
 		// assert
 		if status := rr.Code; status != http.StatusInternalServerError {
 			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusInternalServerError)
 		}
-
-		mockUserStore.AssertExpectations(t)
-		mockAuth.AssertExpectations(t)
-
 	})
 
-	t.Run("error during hashing password", func(t *testing.T) {
+	t.Run("successful retrieval", func(t *testing.T) {
 		// arrange
 		mockUserStore := new(mockUserStore)
-		mockAuth := new(MockAuthenticator)
-		handler := NewHandler(mockUserStore, mockAuth)
+		handler := NewHandler(mockUserStore, new(MockAuthenticator))
+		router := mux.NewRouter()
+		router.HandleFunc("/users/{userID}", handler.handleGetUser)
 
-		userData := `{"firstName": "John", "lastName": "Doe", "email": "john@doe.com", "password": "password123"}`
-		mockUserStore.On("GetUserByEmail", "john@doe.com").Return(nil, fmt.Errorf("not found"))
-		mockAuth.On("HashPassword", "password123").Return(nil, fmt.Errorf("hash error"))
-
-		req, _ := http.NewRequest(http.MethodPost, "/register", strings.NewReader(userData))
-		req.Header.Set("Content-Type", "application/json")
+		expectedUser := &types.User{ID: 1, FirstName: "John", LastName: "Doe"}
+		mockUserStore.On("GetUserByID", 1).Return(expectedUser, nil)
+		req, _ := http.NewRequest(http.MethodGet, "/users/1", nil)
 		rr := httptest.NewRecorder()
 
 		// act
-		handler.handleRegister(rr, req)
+		router.ServeHTTP(rr, req)
 
 		// assert
-		if status := rr.Code; status != http.StatusInternalServerError {
-			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusInternalServerError)
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 		}
-
-		mockUserStore.AssertExpectations(t)
-		mockAuth.AssertExpectations(t)
-
-	})
-
-	t.Run("successful registration", func(t *testing.T) {
-		// arrange
-		mockUserStore := new(mockUserStore)
-		mockAuth := new(MockAuthenticator)
-		handler := NewHandler(mockUserStore, mockAuth)
-
-		userData := `{"firstName": "John", "lastName": "Doe", "email": "new@user.com", "password": "securePass123"}`
-		mockUserStore.On("GetUserByEmail", "new@user.com").Return(nil, fmt.Errorf("not found")) // No existing user
-		mockAuth.On("HashPassword", "securePass123").Return("hashedPassword123", nil)
-		mockUserStore.On("CreateUser", mock.Anything).Return(nil)
-
-		req, _ := http.NewRequest(http.MethodPost, "/register", strings.NewReader(userData))
-		req.Header.Set("Content-Type", "application/json")
-		rr := httptest.NewRecorder()
-
-		// act
-		handler.handleRegister(rr, req)
-
-		// assert
-		if status := rr.Code; status != http.StatusCreated {
-			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
+		var user types.User
+		if err := utils.ParseJSONResponse(rr.Result(), &user); err != nil {
+			t.Fatal("failed to parse response body")
 		}
-
-		mockUserStore.AssertExpectations(t)
-		mockAuth.AssertExpectations(t)
+		if user.ID != expectedUser.ID {
+			t.Errorf("expected user ID %d, got %d", expectedUser.ID, user.ID)
+		}
 	})
 }

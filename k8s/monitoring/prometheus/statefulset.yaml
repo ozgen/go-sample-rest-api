@@ -51,8 +51,6 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/prometheus
-            - name: alert-config-volume
-              mountPath: /etc/prometheus/conf
             - name: prometheus-volume
               mountPath: /prometheus
       restartPolicy: Always
@@ -66,9 +64,6 @@ spec:
         - name: config-volume
           configMap:
             name: prometheus-config
-        - name: alert-config-volume
-          configMap:
-            name: prometheus-alertrules-configmap
   volumeClaimTemplates:
     - metadata:
         name: prometheus-volume

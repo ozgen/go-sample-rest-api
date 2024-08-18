@@ -1,0 +1,11 @@
+# overlays/monitoring/kustomization.yaml
+namespace: monitoring
+resources:
+  - prometheus/roles.yaml
+  - prometheus/configmap.yaml
+  - prometheus/service.yaml
+  - prometheus/statefulset.yaml
+  - grafana/configmap.yaml
+  - grafana/dashboard.yaml
+  - grafana/service.yaml
+  - grafana/deployment.yaml

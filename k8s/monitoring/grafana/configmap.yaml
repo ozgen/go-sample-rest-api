@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-init
+  labels:
+    name: ozgen-grafana
+data:
+  grafana.ini: |
+    [analytics]
+    check_for_updates = true
+    [grafana_net]
+    url = https://grafana.net
+    [log]
+    mode = console
+    [paths]
+    data = /var/lib/grafana/data
+    logs = /var/log/grafana
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  labels:
+    name: ozgen-grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - access: proxy
+        isDefault: true
+        name: prometheus
+        type: prometheus
+        readOnly: false
+        url: http://prometheus-service:9090
+        version: 1
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-providers
+  labels:
+    name: ozgen-grafana
+data:
+  dashboardproviders.yaml: |
+    apiVersion: 1
+    providers:
+      - disableDeletion: false
+        editable: true
+        folder: ""
+        name: default
+        options:
+          path: /var/lib/grafana/dashboards
+        orgId: 1
+        type: file

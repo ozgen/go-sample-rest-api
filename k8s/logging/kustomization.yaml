@@ -1,0 +1,11 @@
+# overlays/logging/kustomization.yaml
+namespace: logging
+resources:
+  - elasticsearch/configmap.yaml
+  - elasticsearch/service.yaml
+  - elasticsearch/statefulset.yaml
+  - fluentd/config.yaml
+  - fluentd/roles.yaml
+  - fluentd/daemonset.yaml
+  - kibana/service.yaml
+  - kibana/deployment.yaml

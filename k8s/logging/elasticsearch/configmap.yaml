@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  labels:
+    app: elasticsearch
+data:
+  elasticsearch.yml: |
+    path.data: /usr/share/elasticsearch/data
+    cluster.name: "docker-cluster"
+    network.host: 0.0.0.0
+    xpack.license.self_generated.type: basic
+    # Enable xpack.security which is provided in basic subscription
+    xpack.security.enabled: false

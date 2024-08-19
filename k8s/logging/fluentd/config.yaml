@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+data:
+  fluent.conf: |
+    <source>
+      @type tail
+      path /var/log/containers/*ozgen-go-api*.log
+      pos_file /var/log/fluentd-ozgen-go-api.pos
+      tag ozgen-go-api
+      <parse>
+        @type json
+      </parse>
+    </source>
+
+    <filter ozgen-go-api>
+      @type parser
+      key_name log
+      <parse>
+        @type regexp
+        expression /time="(?<time>[^"]+)" level=(?<level>\w+) msg="(?<message>[^"]+)"(?: .*)?/
+        time_key time
+        time_format %Y-%m-%dT%H:%M:%S%z
+      </parse>
+    </filter>
+
+    <match ozgen-go-api>
+      @type elasticsearch
+      host "elasticsearch.logging.svc.cluster.local"
+      port 9200
+      logstash_format true
+      <buffer>
+        @type memory
+        flush_interval 5s
+      </buffer>
+    </match>

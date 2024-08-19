@@ -80,16 +80,18 @@ Deploy using Kubernetes and Kustomize:
 1. **Create Namespace**:
     ```bash
     kubectl create namespace ozgen
+    kubectl create namespace logging
+    kubectl create namespace monitoring
     ```
 
 2. **Deploy Resources**:
     ```bash
-    kustomize build k8s/postgres | kubectl apply -f - -n ozgen
-    kustomize build k8s/api | kubectl apply -f - -n ozgen
+    kustomize build k8s | kubectl apply -f -
     ```
 
 3. **Initialize Database**:
     ```bash
+    kustomize build k8s/postgres | kubectl apply -f - -n ozgen
     kubectl port-forward svc/my-postgres 5432:5432 -n ozgen
     make migration up
     ```

@@ -91,7 +91,7 @@ Deploy using Kubernetes and Kustomize:
 
 3. **Initialize Database**:
     ```bash
-    kustomize build k8s/postgres | kubectl apply -f - -n ozgen
+    kustomize build k8s/ozgen/postgres | kubectl apply -f - -n ozgen
     kubectl port-forward svc/my-postgres 5432:5432 -n ozgen
     make migration up
     ```

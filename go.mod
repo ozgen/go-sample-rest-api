@@ -1,6 +1,7 @@
 module go-sample-rest-api
 
 go 1.22.0
+toolchain go1.23.6
 
 require (
 	github.com/Azure/azure-storage-blob-go v0.15.0
@@ -17,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.35.0
 )
 
 require (

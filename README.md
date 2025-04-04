@@ -7,7 +7,7 @@ This repository demonstrates the implementation of a RESTful API in Go with inte
 
 ## Prerequisites
 
-- **Go Version**: Requires [Go 1.22.0](https://golang.org/dl/) or higher.
+- **Go Version**: Requires [Go 1.23.0](https://golang.org/dl/) or higher.
 
 ## Dependencies
 

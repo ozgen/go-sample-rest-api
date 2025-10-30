@@ -33,18 +33,18 @@ jobs:
           echo "Binary built"
           echo "PATH_TO_BINARY=$(pwd)/bin/app" >> $GITHUB_ENV
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
-      - name: Build Docker Image
-        run: |
-          IMAGE_ID=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/go-app
-          echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
-          docker build -t $IMAGE_ID:${{ env.CUSTOM_VERSION }} .
-
-      - name: Push Docker Image
-        run: |
-          docker push ${{ env.IMAGE_ID }}:${{ env.CUSTOM_VERSION }}
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#
+#      - name: Build Docker Image
+#        run: |
+#          IMAGE_ID=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/go-app
+#          echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+#          docker build -t $IMAGE_ID:${{ env.CUSTOM_VERSION }} .
+#
+#      - name: Push Docker Image
+#        run: |
+#          docker push ${{ env.IMAGE_ID }}:${{ env.CUSTOM_VERSION }}
